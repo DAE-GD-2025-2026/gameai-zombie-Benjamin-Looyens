@@ -8,6 +8,8 @@
 
 //#include "Utils/ItemsInclude.h"
 
+#include "Public/SurvivorDecisionMaker.h"
+
 UStudentPerceptor::UStudentPerceptor()
 {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -17,7 +19,9 @@ void UStudentPerceptor::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	if (auto PerceptionComp = GetOwner()->GetComponentByClass<UAIPerceptionComponent>())
+	const auto& pOwner = GetOwner();
+
+	if (auto PerceptionComp = pOwner->GetComponentByClass<UAIPerceptionComponent>())
 	{
 		PerceptionComp->OnTargetPerceptionUpdated.AddDynamic(this, &UStudentPerceptor::OnPerceptionUpdated);
 		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Green, FString::Printf(TEXT("Perception Setup Success")));
@@ -25,6 +29,16 @@ void UStudentPerceptor::BeginPlay()
 	else {
 		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("Perception Setup Failure")));
 	}
+
+	// Add Further Components
+	//USurvivorDecisionMaker* pDecisionMaker = NewObject<USurvivorDecisionMaker>(this)
+
+	UActorComponent* pBaseDecisionMaker = pOwner->AddComponentByClass(USurvivorDecisionMaker::StaticClass(), false, FTransform::Identity, true);
+	if (USurvivorDecisionMaker* pDecisionMaker = Cast<USurvivorDecisionMaker>(pBaseDecisionMaker)) {
+		pDecisionMaker->Init();
+		pDecisionMaker->SetComponentTickEnabled(true);
+	}
+	pOwner->FinishAddComponent(pBaseDecisionMaker, false, FTransform::Identity);
 }
 
 void UStudentPerceptor::OnPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
