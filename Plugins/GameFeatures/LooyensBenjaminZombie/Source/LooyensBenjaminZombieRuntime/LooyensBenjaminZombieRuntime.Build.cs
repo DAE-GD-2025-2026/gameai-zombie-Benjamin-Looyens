@@ -26,6 +26,7 @@ public class LooyensBenjaminZombieRuntime : ModuleRules
 			new string[]
 			{
 				"Core",
+				"GameAI_Zombie"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
