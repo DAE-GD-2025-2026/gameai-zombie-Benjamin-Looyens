@@ -5,8 +5,9 @@
 // Base Project Includes
 #include <GameAI_Zombie/Survivor/SurvivorPawn.h>
 #include <GameAI_Zombie/Village/House/House.h>
+#include <GameAI_Zombie/Zombies/BaseZombie.h>
 
-//#include "Utils/ItemsInclude.h"
+#include "Utils/ItemsInclude.h"
 
 #include "Public/SurvivorDecisionMaker.h"
 
@@ -31,12 +32,11 @@ void UStudentPerceptor::BeginPlay()
 	}
 
 	// Add Further Components
-	//USurvivorDecisionMaker* pDecisionMaker = NewObject<USurvivorDecisionMaker>(this)
-
 	UActorComponent* pBaseDecisionMaker = pOwner->AddComponentByClass(USurvivorDecisionMaker::StaticClass(), false, FTransform::Identity, true);
-	if (USurvivorDecisionMaker* pDecisionMaker = Cast<USurvivorDecisionMaker>(pBaseDecisionMaker)) {
-		pDecisionMaker->Init();
-		pDecisionMaker->SetComponentTickEnabled(true);
+	m_pDecisionMaker = Cast<USurvivorDecisionMaker>(pBaseDecisionMaker);
+	if (m_pDecisionMaker) {
+		m_pDecisionMaker->Init();
+		m_pDecisionMaker->SetComponentTickEnabled(true);
 	}
 	pOwner->FinishAddComponent(pBaseDecisionMaker, false, FTransform::Identity);
 }
@@ -49,9 +49,12 @@ void UStudentPerceptor::OnPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Yellow, FString::Printf(TEXT("Saw a House!")));
 
 		if (ASurvivorPawn* pSurvivor = dynamic_cast<ASurvivorPawn*>(GetOwner())) {
+			// TODO : maybe can store this in memory
 			const double dist = FVector::Distance(pSurvivor->GetActorLocation(), pHouse->GetActorLocation());
 
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("Distance between house and survivor: %f"), dist));
+			//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("Distance between house and survivor: %f"), dist)); 
 		}
+
+		m_pDecisionMaker->AddHouseMemory(pHouse);
 	}
 }

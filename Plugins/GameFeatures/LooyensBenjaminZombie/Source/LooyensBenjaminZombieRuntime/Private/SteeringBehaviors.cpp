@@ -3,7 +3,6 @@
 
 // General
 // HACK : Debug rendering does Survivor.Z -85.0 since the mesh bottom is not the Actor position, but is not ideal
-// HACK : Debug rendering based on stored values is not ideal, as behaviors may be applied to multiple Survivors
 
 // Base Debug Render
 void ISteeringBehavior::DebugRender(const ASurvivorPawn& Survivor)
@@ -23,7 +22,7 @@ void ISteeringBehavior::ApplySteering(ASurvivorPawn* pSurvivor, const SteeringOu
 {
 	pSurvivor->AddMovementInput(FVector{ steering.LinearVelocity, 0.f });
 	
-	// TODO : Debug Render
+	// MAYB : Debug Render?
 	if (autoOrient) {
 		const auto& fullVelocity = pSurvivor->GetVelocity();
 
@@ -203,8 +202,6 @@ SteeringOutput Wander::CalculateSteering(float DeltaT, const ASurvivorPawn& Surv
 {
 	SteeringOutput steering{};
 
-	// TODO : Ensure the angle change is accurate
-	// Angle does not seem to go outside of the top arc?
 	const float angleChange = std::clamp((FMath::FRand() * 2.0f) - 1.0f, -m_MaxChange, m_MaxChange);
 	m_CurrentAngle += angleChange;
 

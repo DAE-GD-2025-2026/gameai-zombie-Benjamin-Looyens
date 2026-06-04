@@ -8,6 +8,7 @@
 #include <GameAI_Zombie/Common/StaminaComponent.h>
 
 #include "WanderAction.h"
+#include "EnterHouseAction.h"
 
 // Sets default values for this component's properties
 USurvivorDecisionMaker::USurvivorDecisionMaker()
@@ -43,6 +44,7 @@ void USurvivorDecisionMaker::Init()
 
 	// Create Utility Actions
 	m_Actions.Add(MakeUnique<WanderAction>());
+	m_Actions.Add(MakeUnique<EnterHouseAction>());
 }
 
 // Called when the game starts
@@ -71,5 +73,16 @@ void USurvivorDecisionMaker::TickComponent(float DeltaTime, ELevelTick TickType,
 	}
 
 	m_Actions[bestAction.first]->Execute(m_Memory);
+}
+
+void USurvivorDecisionMaker::AddHouseMemory(AHouse* pHouse)
+{
+	if (m_Memory.pSeenHouses.Contains(pHouse)) {
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("House is already in memory!")));
+		return;
+	}
+
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("New House added to memory index [%i]"), m_Memory.pSeenHouses.Num()));
+	m_Memory.pSeenHouses.Add(pHouse);
 }
 

@@ -12,6 +12,7 @@ class UInventoryComponent;
 class UHealthComponent;
 class UStaminaComponent;
 class ASurvivorPawn;
+class AHouse;
 
 struct SurvivorMemory
 {
@@ -20,10 +21,14 @@ struct SurvivorMemory
 	// - Last seen Houses and Items
 	// - Purge Zones
 
+	// Pointers to Survivor's Components
 	ASurvivorPawn* pSurvivor = nullptr;
 	UInventoryComponent* pInventory = nullptr;
 	UHealthComponent* pHealth = nullptr;
 	UStaminaComponent* pStamina = nullptr;
+
+	// Active Memory
+	TArray<AHouse*> pSeenHouses{};
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -44,6 +49,8 @@ protected:
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	
+	void AddHouseMemory(AHouse* pHouse);
 
 private:
 	SurvivorMemory m_Memory{};

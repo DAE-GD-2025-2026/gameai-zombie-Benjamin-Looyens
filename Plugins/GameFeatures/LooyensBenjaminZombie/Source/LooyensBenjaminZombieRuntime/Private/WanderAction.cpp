@@ -11,9 +11,9 @@ WanderAction::WanderAction()
 
 float WanderAction::Evaluate(const SurvivorMemory& memory)
 {
-	// 10.0f baseline
+	// 1.0f baseline
 	// wander when nothing works
-	return 10.0f; 
+	return 1.0f; 
 }
 
 void WanderAction::Execute(const SurvivorMemory& memory)
