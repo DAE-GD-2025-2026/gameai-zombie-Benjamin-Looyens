@@ -7,6 +7,8 @@
 #include <GameAI_Zombie/Common/InventoryComponent.h>
 #include <GameAI_Zombie/Common/StaminaComponent.h>
 
+#include "WanderAction.h"
+
 // Sets default values for this component's properties
 USurvivorDecisionMaker::USurvivorDecisionMaker()
 {
@@ -24,19 +26,23 @@ void USurvivorDecisionMaker::Init()
 	GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Green, FString::Printf(TEXT("Added decision maker")));
 
 	// Get Survivor Components
-	m_pInventory = GetOwner()->GetComponentByClass<UInventoryComponent>();
-	m_pHealth = GetOwner()->GetComponentByClass<UHealthComponent>();
-	m_pStamina = GetOwner()->GetComponentByClass<UStaminaComponent>();
+	m_Memory.pSurvivor = Cast<ASurvivorPawn>(GetOwner());
+	m_Memory.pInventory = GetOwner()->GetComponentByClass<UInventoryComponent>();
+	m_Memory.pHealth = GetOwner()->GetComponentByClass<UHealthComponent>();
+	m_Memory.pStamina = GetOwner()->GetComponentByClass<UStaminaComponent>();
 
-	if (m_pInventory) {
+	if (m_Memory.pInventory) {
 		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, FString::Printf(TEXT("Got reference to inventory")));
 	}
-	if (m_pHealth) {
+	if (m_Memory.pHealth) {
 		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, FString::Printf(TEXT("Got reference to health")));
 	}
-	if (m_pStamina) {
+	if (m_Memory.pStamina) {
 		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, FString::Printf(TEXT("Got reference to stamina")));
 	}
+
+	// Create Utility Actions
+	m_Actions.Add(MakeUnique<WanderAction>());
 }
 
 // Called when the game starts
@@ -51,10 +57,19 @@ void USurvivorDecisionMaker::TickComponent(float DeltaTime, ELevelTick TickType,
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	const auto& pOwner = GetOwner();
-	const auto& pos = pOwner->GetActorLocation();
+	if (m_Actions.Num() <= 0) return; // No actions to loop through
 
-	// TEMP : Location modification to test if works
-	pOwner->SetActorLocation(pos + FVector{ 10, 0, 0 });
+	std::pair<int, float> bestAction{ 0, -50.0f };
+	for (size_t index{}; index < m_Actions.Num(); index++) {
+		const auto& pCurAction = m_Actions[index];
+		const float curValue = pCurAction->Evaluate(m_Memory);
+
+		if (curValue > bestAction.second) {
+			bestAction.first = index;
+			bestAction.second = curValue;
+		}
+	}
+
+	m_Actions[bestAction.first]->Execute(m_Memory);
 }
 

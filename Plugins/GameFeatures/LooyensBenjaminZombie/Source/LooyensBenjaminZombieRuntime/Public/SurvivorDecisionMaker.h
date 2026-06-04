@@ -4,11 +4,27 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "SurvivorUtilityAction.h"
+
 #include "SurvivorDecisionMaker.generated.h"
 
 class UInventoryComponent;
 class UHealthComponent;
 class UStaminaComponent;
+class ASurvivorPawn;
+
+struct SurvivorMemory
+{
+	// Add Memory of:
+	// - Visible Zombies, Houses and Items
+	// - Last seen Houses and Items
+	// - Purge Zones
+
+	ASurvivorPawn* pSurvivor = nullptr;
+	UInventoryComponent* pInventory = nullptr;
+	UHealthComponent* pHealth = nullptr;
+	UStaminaComponent* pStamina = nullptr;
+};
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class LOOYENSBENJAMINZOMBIERUNTIME_API USurvivorDecisionMaker : public UActorComponent
@@ -30,7 +46,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
-	UInventoryComponent* m_pInventory = nullptr;
-	UHealthComponent* m_pHealth = nullptr;
-	UStaminaComponent* m_pStamina = nullptr;
+	SurvivorMemory m_Memory{};
+
+	TArray<TUniquePtr<ISurvivorUtilityAction>> m_Actions{};
 };
