@@ -255,6 +255,20 @@ void PathFollow::SetPath(const TArray<FVector2D>& path)
 	GotoNextPathPoint();
 }
 
+void PathFollow::SetPath(const TArray<FVector>& path)
+{
+	pathArr.Reset(path.Num());
+
+	Algo::Transform(path, pathArr,
+		[](const FVector& vec) {
+			return FVector2D{ vec.X, vec.Y };
+		}
+	);
+
+	currentPathIndex = -1;
+	GotoNextPathPoint();
+}
+
 SteeringOutput PathFollow::CalculateSteering(float DeltaTime, const ASurvivorPawn& Survivor)
 {
 	if (currentPathIndex < static_cast<int>(pathArr.Num()))

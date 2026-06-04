@@ -134,6 +134,7 @@ public:
 	PathFollow();
 	virtual ~PathFollow() override = default;
 	void SetPath(const TArray<FVector2D>& path);
+	void SetPath(const TArray<FVector>& path);
 	virtual SteeringOutput CalculateSteering(float DeltaTime, const ASurvivorPawn& Survivor) override;
 
 private:
