@@ -8,7 +8,7 @@
 #include <GameAI_Zombie/Common/StaminaComponent.h>
 
 #include "WanderAction.h"
-#include "EnterHouseAction.h"
+#include "HouseActions.h"
 
 // Sets default values for this component's properties
 USurvivorDecisionMaker::USurvivorDecisionMaker()
@@ -42,6 +42,7 @@ void USurvivorDecisionMaker::Init()
 
 	// Create Utility Actions
 	m_Actions.Add(MakeUnique<WanderAction>());
+	m_Actions.Add(MakeUnique<SelectHouseAction>());
 	m_Actions.Add(MakeUnique<EnterHouseAction>());
 
 	// Goals & Actions to Add:
@@ -79,6 +80,8 @@ void USurvivorDecisionMaker::TickComponent(float DeltaTime, ELevelTick TickType,
 
 	if (m_Actions.Num() <= 0) return; // No actions to loop through
 
+	constexpr int DEBUG_MESSAGE_OFFSET = 6;
+
 	std::pair<int, float> bestAction{ 0, -50.0f };
 	for (size_t index{}; index < m_Actions.Num(); index++) {
 		const auto& pCurAction = m_Actions[index];
@@ -88,9 +91,15 @@ void USurvivorDecisionMaker::TickComponent(float DeltaTime, ELevelTick TickType,
 			bestAction.first = index;
 			bestAction.second = curValue;
 		}
+
+		GEngine->AddOnScreenDebugMessage(DEBUG_MESSAGE_OFFSET + index, 2.5f, FColor::Cyan, FString::Printf(TEXT("[%i] Score: %f"), index, curValue));
 	}
 
 	m_Actions[bestAction.first]->Execute(m_Memory);
+
+	// Maybe store steering behaviors elsewhere (in memory?)
+	// As they could potentially be better off being reused sometimes?
+	// Depends on the behavior specifically though, as some probably prefer to keep their internal storage
 }
 
 void USurvivorDecisionMaker::AddHouseMemory(AHouse* pHouse)

@@ -16,7 +16,7 @@ float WanderAction::Evaluate(const SurvivorMemory& memory)
 	return 1.0f; 
 }
 
-void WanderAction::Execute(const SurvivorMemory& memory)
+void WanderAction::Execute(SurvivorMemory& memory)
 {
 	const auto& pWorld = memory.pSurvivor->GetWorld();
 

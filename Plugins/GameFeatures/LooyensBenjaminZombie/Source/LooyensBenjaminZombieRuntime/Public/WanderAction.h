@@ -8,7 +8,7 @@ public:
 	WanderAction();
 
 	virtual float Evaluate(const SurvivorMemory& memory);
-	virtual void Execute(const SurvivorMemory& memory);
+	virtual void Execute(SurvivorMemory& memory);
 
 private:
 	TUniquePtr<Wander> m_pBehavior{};

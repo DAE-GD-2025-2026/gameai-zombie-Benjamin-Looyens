@@ -43,6 +43,8 @@ struct SurvivorMemory
 
 	// Active Memory
 	TArray<HouseMemory> houses{};
+	HouseMemory* pSelectedHouse = nullptr;
+
 	TArray<ZombieMemory> zombies{};
 	TArray<PurgeMemory> purgeZones{};
 };
