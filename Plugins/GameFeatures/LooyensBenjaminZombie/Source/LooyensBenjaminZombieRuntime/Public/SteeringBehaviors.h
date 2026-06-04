@@ -22,7 +22,7 @@ public:
 	T* As()
 	{ return static_cast<T*>(this); }
 
-	static void ApplySteering(ASurvivorPawn* pSurvivor, const SteeringOutput& steering);
+	static void ApplySteering(ASurvivorPawn* pSurvivor, const SteeringOutput& steering, bool autoOrient = true);
 
 protected:
 	FTargetData Target;

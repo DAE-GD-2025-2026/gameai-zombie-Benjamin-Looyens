@@ -19,13 +19,21 @@ void ISteeringBehavior::DebugRender(const ASurvivorPawn& Survivor)
 	DrawDebugLine(pWorld, FVector{ curPos, SurvivorZ }, FVector{ curPos + curVel, SurvivorZ }, CUR_VELOCITY_COLOR);
 }
 
-void ISteeringBehavior::ApplySteering(ASurvivorPawn* pSurvivor, const SteeringOutput& steering)
+void ISteeringBehavior::ApplySteering(ASurvivorPawn* pSurvivor, const SteeringOutput& steering, bool autoOrient)
 {
 	pSurvivor->AddMovementInput(FVector{ steering.LinearVelocity, 0.f });
 	
-	// TODO : Auto Orient and Debug Render
-	//pSurvivor->AddActorLocalRotation(FRotator(0.0f, (steering.AngularVelocity), 0.0f));
-	//if (bIsDebugRenderingEnabled) SteeringBehavior->DebugRender(*this);
+	// TODO : Debug Render
+	if (autoOrient) {
+		const auto& fullVelocity = pSurvivor->GetVelocity();
+
+		if (!fullVelocity.IsNearlyZero()) { // Ensure no weird calculations with float errors
+			const FRotator newRotation = fullVelocity.ToOrientationRotator();
+
+			pSurvivor->SetActorRotation(newRotation); // TODO : apply some sort of MaxAngularSpeed
+		}
+	}
+	else pSurvivor->AddActorLocalRotation(FRotator(0.0f, (steering.AngularVelocity), 0.0f));
 }
 
 // Seek Behavior
