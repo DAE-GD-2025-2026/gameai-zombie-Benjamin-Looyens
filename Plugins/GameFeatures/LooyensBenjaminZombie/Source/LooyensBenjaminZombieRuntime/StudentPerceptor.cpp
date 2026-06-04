@@ -43,18 +43,17 @@ void UStudentPerceptor::BeginPlay()
 
 void UStudentPerceptor::OnPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Yellow, FString::Printf(TEXT("Saw Something!")));
+	// New "Stimuli"
+	if (Stimulus.WasSuccessfullySensed()) { 
+		if (AHouse* pHouse = Cast<AHouse>(Actor)) {
+			if (ASurvivorPawn* pSurvivor = dynamic_cast<ASurvivorPawn*>(GetOwner())) {
+				// TODO : maybe can store this in memory
+				const double dist = FVector::Distance(pSurvivor->GetActorLocation(), pHouse->GetActorLocation());
 
-	if (AHouse* pHouse = Cast<AHouse>(Actor)) {
-		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Yellow, FString::Printf(TEXT("Saw a House!")));
+				//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("Distance between house and survivor: %f"), dist)); 
+			}
 
-		if (ASurvivorPawn* pSurvivor = dynamic_cast<ASurvivorPawn*>(GetOwner())) {
-			// TODO : maybe can store this in memory
-			const double dist = FVector::Distance(pSurvivor->GetActorLocation(), pHouse->GetActorLocation());
-
-			//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("Distance between house and survivor: %f"), dist)); 
+			m_pDecisionMaker->AddHouseMemory(pHouse);
 		}
-
-		m_pDecisionMaker->AddHouseMemory(pHouse);
 	}
 }

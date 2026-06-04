@@ -5,31 +5,9 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "SurvivorUtilityAction.h"
+#include "SurvivorMemory.h"
 
 #include "SurvivorDecisionMaker.generated.h"
-
-class UInventoryComponent;
-class UHealthComponent;
-class UStaminaComponent;
-class ASurvivorPawn;
-class AHouse;
-
-struct SurvivorMemory
-{
-	// Add Memory of:
-	// - Visible Zombies, Houses and Items
-	// - Last seen Houses and Items
-	// - Purge Zones
-
-	// Pointers to Survivor's Components
-	ASurvivorPawn* pSurvivor = nullptr;
-	UInventoryComponent* pInventory = nullptr;
-	UHealthComponent* pHealth = nullptr;
-	UStaminaComponent* pStamina = nullptr;
-
-	// Active Memory
-	TArray<AHouse*> pSeenHouses{};
-};
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class LOOYENSBENJAMINZOMBIERUNTIME_API USurvivorDecisionMaker : public UActorComponent

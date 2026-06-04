@@ -12,7 +12,7 @@ EnterHouseAction::EnterHouseAction()
 
 float EnterHouseAction::Evaluate(const SurvivorMemory& memory)
 {
-	float value = memory.pSeenHouses.Num() * 10.0f; // The more houses seen, the higher the value
+	float value = memory.houses.Num() * 10.0f; // The more houses seen, the higher the value
 
 	// Stuff to modify value:
 	// If there are nearby houses
@@ -28,7 +28,7 @@ void EnterHouseAction::Execute(const SurvivorMemory& memory)
 	const auto& pWorld = memory.pSurvivor->GetWorld();
 
 	if (!m_PathIsUpToDate) {
-		const auto path = memory.pSurvivor->CalculatePath(memory.pSeenHouses[0]->GetActorLocation());
+		const auto path = memory.pSurvivor->CalculatePath(memory.houses[0].ptr->GetActorLocation());
 
 		m_pBehavior->SetPath(path);
 

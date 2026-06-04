@@ -17,8 +17,6 @@ USurvivorDecisionMaker::USurvivorDecisionMaker()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 	PrimaryComponentTick.bStartWithTickEnabled = true;
-
-	// ...
 }
 
 // HACK : Separate Init Function is weird but BeginPlay() would never be called
@@ -45,6 +43,27 @@ void USurvivorDecisionMaker::Init()
 	// Create Utility Actions
 	m_Actions.Add(MakeUnique<WanderAction>());
 	m_Actions.Add(MakeUnique<EnterHouseAction>());
+
+	// Goals & Actions to Add:
+	// - [GOAL] Search For Items
+	//		- [ACTION] Look for house
+	//		- [ACTION] Enter house
+	//		- [ACTION] Loot house
+	//		- [ACTION] Leave house
+	// - [GOAL] Defend self from zombie
+	//		- [ACTION] Search inventory for weapon
+	//			- [ACTION] Flee from zombie
+	//			- [GOAL] Search for Items ^
+	//		- [ACTION] Face zombie
+	//		- [ACTION] Use weapon
+	// - [GOAL] Heal from damage
+	//		- [ACTION] Search inventory for medkit
+	//			- [GOAL] Search for Items ^ 
+	//		- [ACTION] Use Medkit
+	// - [GOAL] Recover Stamina
+	//		- [ACTION] Search inventory for food
+	//			- [GOAL] Search for Items ^ 
+	//		- [ACTION] Use food
 }
 
 // Called when the game starts
@@ -52,7 +71,6 @@ void USurvivorDecisionMaker::BeginPlay()
 {
 	Super::BeginPlay();
 }
-
 
 // Called every frame
 void USurvivorDecisionMaker::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -77,12 +95,12 @@ void USurvivorDecisionMaker::TickComponent(float DeltaTime, ELevelTick TickType,
 
 void USurvivorDecisionMaker::AddHouseMemory(AHouse* pHouse)
 {
-	if (m_Memory.pSeenHouses.Contains(pHouse)) {
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("House is already in memory!")));
-		return;
+	auto& houses = m_Memory.houses;
+	for (const auto& house : houses) {
+		if (house.ptr == pHouse) return; // House already known
 	}
 
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("New House added to memory index [%i]"), m_Memory.pSeenHouses.Num()));
-	m_Memory.pSeenHouses.Add(pHouse);
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("New House added to memory index [%i]"), houses.Num()));
+	houses.Add({ pHouse, GetWorld()->GetTimeSeconds() });
 }
 
