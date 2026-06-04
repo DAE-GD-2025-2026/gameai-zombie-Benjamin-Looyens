@@ -127,3 +127,21 @@ protected:
 	// Debug Render
 	FVector2D m_WanderPos = FVector2D::UnitVector;
 };
+
+class PathFollow : public ISteeringBehavior
+{
+public:
+	PathFollow();
+	virtual ~PathFollow() override = default;
+	void SetPath(const TArray<FVector2D>& path);
+	virtual SteeringOutput CalculateSteering(float DeltaTime, const ASurvivorPawn& Survivor) override;
+
+private:
+	TUniquePtr<Seek> pSeek = nullptr;
+	TUniquePtr<Arrive> pArrive = nullptr;
+	ISteeringBehavior* pCurrentSteering = nullptr;
+	TArray<FVector2D> pathArr = {};
+	int currentPathIndex = 0;
+
+	void GotoNextPathPoint();
+};

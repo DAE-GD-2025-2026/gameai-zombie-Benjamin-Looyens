@@ -239,3 +239,60 @@ void Wander::DebugRender(const ASurvivorPawn& Survivor)
 	// Point on Circle
 	DrawDebugPoint(pWorld, FVector{ m_WanderPos, SurvivorZ + 0.1f }, WANDER_POINT_SIZE, WANDER_POINT_COLOR); // + 0.1f to ensure it is above the radius circle
 }
+
+PathFollow::PathFollow()
+{
+	pSeek = MakeUnique<Seek>();
+	pArrive = MakeUnique<Arrive>();
+	pArrive->SetTargetRadius(10.0f);
+}
+
+void PathFollow::SetPath(const TArray<FVector2D>& path)
+{
+	pathArr = path;
+
+	currentPathIndex = -1;
+	GotoNextPathPoint();
+}
+
+SteeringOutput PathFollow::CalculateSteering(float DeltaTime, const ASurvivorPawn& Survivor)
+{
+	if (currentPathIndex < static_cast<int>(pathArr.Num()))
+	{
+		float agentRadius = Survivor.GetSimpleCollisionRadius(); // Not sure if GetSimpleCollisionRadius is equivalent to GetCapsuleRadius
+		FVector2D ToPathPoint{ pathArr[currentPathIndex] - SteeringPawnAccess::GetPawnPosition(Survivor) };
+
+		if (ToPathPoint.SizeSquared() < agentRadius * agentRadius)
+		{
+			//Reached point of the path
+			GotoNextPathPoint();
+		}
+	}
+
+	if (pCurrentSteering != nullptr)
+	{
+		return pCurrentSteering->CalculateSteering(DeltaTime, Survivor);
+	}
+	return SteeringOutput{};
+}
+
+void PathFollow::GotoNextPathPoint()
+{
+	++currentPathIndex;
+	if (currentPathIndex >= static_cast<int>(pathArr.Num())) return;
+
+	if (currentPathIndex == pathArr.Num() - 1)
+	{
+		FTargetData PathTarget{ pathArr[currentPathIndex] };
+		//We have reached the last node
+		pArrive->SetTarget(PathTarget);
+		pCurrentSteering = pArrive.Get();
+	}
+	else
+	{
+		FTargetData PathTarget{ pathArr[currentPathIndex] };
+		//Move to the next node
+		pSeek->SetTarget(PathTarget);
+		pCurrentSteering = pSeek.Get();
+	}
+}
