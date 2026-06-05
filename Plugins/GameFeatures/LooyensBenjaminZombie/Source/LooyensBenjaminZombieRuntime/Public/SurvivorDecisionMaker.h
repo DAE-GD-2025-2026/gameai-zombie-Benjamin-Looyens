@@ -36,4 +36,5 @@ private:
 	SurvivorMemory m_Memory{};
 
 	TArray<TUniquePtr<ISurvivorUtilityAction>> m_Actions{};
+	int m_PrevAction = -1;
 };

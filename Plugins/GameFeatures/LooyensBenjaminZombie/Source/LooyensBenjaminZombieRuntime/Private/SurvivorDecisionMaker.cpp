@@ -82,6 +82,8 @@ void USurvivorDecisionMaker::TickComponent(float DeltaTime, ELevelTick TickType,
 
 	if (m_Actions.Num() <= 0) return; // No actions to loop through
 
+	if (m_PrevAction != -1) m_Actions[m_PrevAction]->LateExecute(m_Memory); // Logic after movement for previous action
+
 	constexpr int DEBUG_MESSAGE_OFFSET = 6;
 
 	std::pair<int, float> bestAction{ 0, -50.0f };
@@ -98,6 +100,7 @@ void USurvivorDecisionMaker::TickComponent(float DeltaTime, ELevelTick TickType,
 	}
 
 	m_Actions[bestAction.first]->Execute(m_Memory);
+	m_PrevAction = bestAction.first;
 
 	// Maybe store steering behaviors elsewhere (in memory?)
 	// As they could potentially be better off being reused sometimes?
@@ -144,7 +147,7 @@ void USurvivorDecisionMaker::AddZombieMemory(ABaseZombie* pZombie)
 {
 	auto& zombies = m_Memory.zombies;
 	for (const auto& zombie : zombies) {
-		if (zombie.ptr == pZombie) return; // Purge zone already known
+		if (zombie.ptr == pZombie) return; // Zombie already known
 	}
 
 	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("New zombie added to memory index [%i]"), zombies.Num()));
