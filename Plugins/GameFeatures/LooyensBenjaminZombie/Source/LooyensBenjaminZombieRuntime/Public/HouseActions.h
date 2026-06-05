@@ -5,8 +5,8 @@
 class SelectHouseAction : public ISurvivorUtilityAction
 {
 public:
-	virtual float Evaluate(const SurvivorMemory& memory);
-	virtual void Execute(SurvivorMemory& memory);
+	virtual float Evaluate(const SurvivorMemory& memory) override;
+	virtual void Execute(SurvivorMemory& memory) override;
 };
 
 class EnterHouseAction : public ISurvivorUtilityAction
@@ -14,8 +14,8 @@ class EnterHouseAction : public ISurvivorUtilityAction
 public:
 	EnterHouseAction();
 
-	virtual float Evaluate(const SurvivorMemory& memory);
-	virtual void Execute(SurvivorMemory& memory);
+	virtual float Evaluate(const SurvivorMemory& memory) override;
+	virtual void Execute(SurvivorMemory& memory) override;
 
 private:
 	TUniquePtr<PathFollow> m_pBehavior{};
