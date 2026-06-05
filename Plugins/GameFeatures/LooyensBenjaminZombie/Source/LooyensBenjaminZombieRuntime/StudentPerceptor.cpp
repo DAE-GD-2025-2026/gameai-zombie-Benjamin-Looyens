@@ -6,6 +6,7 @@
 #include <GameAI_Zombie/Survivor/SurvivorPawn.h>
 #include <GameAI_Zombie/Village/House/House.h>
 #include <GameAI_Zombie/Zombies/BaseZombie.h>
+#include <GameAI_Zombie/PurgeZones/PurgeZone.h>
 
 #include "Utils/ItemsInclude.h"
 
@@ -46,14 +47,15 @@ void UStudentPerceptor::OnPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 	// New "Stimuli"
 	if (Stimulus.WasSuccessfullySensed()) { 
 		if (AHouse* pHouse = Cast<AHouse>(Actor)) {
-			if (ASurvivorPawn* pSurvivor = dynamic_cast<ASurvivorPawn*>(GetOwner())) {
-				// TODO : maybe can store this in memory
-				const double dist = FVector::Distance(pSurvivor->GetActorLocation(), pHouse->GetActorLocation());
-
-				//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("Distance between house and survivor: %f"), dist)); 
-			}
-
 			m_pDecisionMaker->AddHouseMemory(pHouse);
+		}
+
+		if (APurgeZone* pPurge = Cast<APurgeZone>(Actor)) {
+			m_pDecisionMaker->AddPurgeMemory(pPurge);
+		}
+
+		if (ABaseZombie* pZombie = Cast<ABaseZombie>(Actor)) {
+			m_pDecisionMaker->AddZombieMemory(pZombie);
 		}
 	}
 }

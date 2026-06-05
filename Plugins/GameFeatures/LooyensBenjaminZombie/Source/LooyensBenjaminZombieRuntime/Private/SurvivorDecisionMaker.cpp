@@ -6,6 +6,8 @@
 #include <GameAI_Zombie/Common/HealthComponent.h>
 #include <GameAI_Zombie/Common/InventoryComponent.h>
 #include <GameAI_Zombie/Common/StaminaComponent.h>
+#include <GameAI_Zombie/Zombies/BaseZombie.h>
+#include <GameAI_Zombie/PurgeZones/PurgeZone.h>
 
 #include "WanderAction.h"
 #include "HouseActions.h"
@@ -100,6 +102,20 @@ void USurvivorDecisionMaker::TickComponent(float DeltaTime, ELevelTick TickType,
 	// Maybe store steering behaviors elsewhere (in memory?)
 	// As they could potentially be better off being reused sometimes?
 	// Depends on the behavior specifically though, as some probably prefer to keep their internal storage
+
+	// Update Memory
+	const double curTime = GetWorld()->GetTimeSeconds();
+
+	// TEMP : Debug for when remove purge zone
+	const int prevPurgeNum = m_Memory.purgeZones.Num();
+
+	m_Memory.purgeZones.RemoveAll([&](const PurgeMemory& purge) {
+		return curTime - purge.timeCreated >= PurgeMemory::s_PURGE_TIMER; // Purge Zone Should have expired
+	});
+
+	if (m_Memory.purgeZones.Num() < prevPurgeNum) GEngine->AddOnScreenDebugMessage(-1, 2.5f, FColor::Yellow, FString::Printf(TEXT("Purge Zone Cleared!")));
+
+	// TODO : Somehow clear zombies that die in purge zones?
 }
 
 void USurvivorDecisionMaker::AddHouseMemory(AHouse* pHouse)
@@ -111,5 +127,27 @@ void USurvivorDecisionMaker::AddHouseMemory(AHouse* pHouse)
 
 	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("New House added to memory index [%i]"), houses.Num()));
 	houses.Add({ pHouse, GetWorld()->GetTimeSeconds() });
+}
+
+void USurvivorDecisionMaker::AddPurgeMemory(APurgeZone* pPurgeZone)
+{
+	auto& zones = m_Memory.purgeZones;
+	for (const auto& zone : zones) {
+		if (zone.ptr == pPurgeZone) return; // Purge zone already known
+	}
+
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("New Purge Zone added to memory index [%i]"), zones.Num()));
+	zones.Add({ pPurgeZone, pPurgeZone->CreationTime });
+}
+
+void USurvivorDecisionMaker::AddZombieMemory(ABaseZombie* pZombie)
+{
+	auto& zombies = m_Memory.zombies;
+	for (const auto& zombie : zombies) {
+		if (zombie.ptr == pZombie) return; // Purge zone already known
+	}
+
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("New zombie added to memory index [%i]"), zombies.Num()));
+	zombies.Add({ pZombie, GetWorld()->GetTimeSeconds(), pZombie->GetActorLocation(), pZombie->GetVelocity() });
 }
 

@@ -29,6 +29,8 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
 	void AddHouseMemory(AHouse* pHouse);
+	void AddPurgeMemory(APurgeZone* pPurgeZone);
+	void AddZombieMemory(ABaseZombie* pZombie);
 
 private:
 	SurvivorMemory m_Memory{};
