@@ -3,6 +3,7 @@
 #include <GameAI_Zombie/Common/HealthComponent.h>
 #include <GameAI_Zombie/Common/InventoryComponent.h>
 #include <GameAI_Zombie/Common/StaminaComponent.h>
+#include <GameAI_Zombie/Village/House/House.h>
 
 namespace SurvivorUtils {
 	int GetNumberOfFreeSlots(UInventoryComponent* pInventory)
@@ -39,6 +40,22 @@ namespace SurvivorUtils {
 		if (!pStamina) return 0.0f;
 
 		return static_cast<float>(pStamina->GetCurrentStamina()) / static_cast<float>(pStamina->GetMaxStamina());
+	}
+
+	FBox HouseBoundsToBox(const FHouseBounds& houseBounds)
+	{
+		return {
+			houseBounds.Origin - houseBounds.Extent,
+			houseBounds.Origin + houseBounds.Extent
+		};
+	}
+
+	bool IsSurvivorWithinHouse(ASurvivorPawn* pSurvivor, const FHouseBounds& houseBounds)
+	{
+		if (!pSurvivor) return false;
+
+		const FBox houseBox = SurvivorUtils::HouseBoundsToBox(houseBounds);
+		return houseBox.IsInside(pSurvivor->GetActorLocation());
 	}
 }
 

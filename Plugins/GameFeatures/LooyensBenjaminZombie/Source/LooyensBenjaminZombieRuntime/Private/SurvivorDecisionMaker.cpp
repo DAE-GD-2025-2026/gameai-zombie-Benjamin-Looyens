@@ -46,6 +46,8 @@ void USurvivorDecisionMaker::Init()
 	m_Actions.Add(MakeUnique<WanderAction>());
 	m_Actions.Add(MakeUnique<SelectHouseAction>());
 	m_Actions.Add(MakeUnique<EnterHouseAction>());
+	m_Actions.Add(MakeUnique<ExitHouseAction>());
+	m_Actions.Add(MakeUnique<LootHouseAction>());
 
 	// Goals & Actions to Add:
 	// - [GOAL] Search For Items

@@ -47,6 +47,7 @@ void SelectHouseAction::Execute(SurvivorMemory& memory)
 	}
 
 	memory.pSelectedHouse = pBestHouse;
+	memory.timeSpentInHouse = 0.0f;
 }
 
 // ENTER HOUSE
@@ -86,16 +87,101 @@ void EnterHouseAction::Execute(SurvivorMemory& memory)
 {
 	const auto& pWorld = memory.pSurvivor->GetWorld();
 
-	if (!m_PathIsUpToDate) {
-		const auto path = memory.pSurvivor->CalculatePath(memory.houses[0].ptr->GetActorLocation());
+	if (m_pLatestHouse != memory.pSelectedHouse) {
+		const auto path = memory.pSurvivor->CalculatePath(memory.pSelectedHouse->ptr->GetActorLocation());
 
 		m_pBehavior->SetPath(path);
 
-		m_PathIsUpToDate = true;
+		m_pLatestHouse = memory.pSelectedHouse;
 	}
 
 	const auto steering = m_pBehavior->CalculateSteering(pWorld->GetDeltaSeconds(), *(memory.pSurvivor));
 	ISteeringBehavior::ApplySteering(memory.pSurvivor, steering);
 }
 
+// EXIT ENTERED HOUSE
+ExitHouseAction::ExitHouseAction()
+{
+	m_pBehavior = MakeUnique<PathFollow>();
+
+	UE_LOG(LogTemp, Log, TEXT("Exit House Action Created"));
+}
+
+float ExitHouseAction::Evaluate(const SurvivorMemory& memory)
+{
+	if (!memory.pSelectedHouse) return 0.0f;
+
+	float value{};
+
+	// The longer we spend in the house, the more likely we want to leave
+	// However, we first want to make sure it is looted
+	value += memory.timeSpentInHouse * static_cast<float>(SurvivorUtils::IsSurvivorWithinHouse(memory.pSurvivor, memory.pSelectedHouse->ptr->GetBounds())); 
+	//value += memory.timeSpentInHouse * static_cast<float>(memory.pSelectedHouse->looted); 
+
+	return value;
+}
+
+void ExitHouseAction::Execute(SurvivorMemory& memory)
+{
+	const auto& pWorld = memory.pSurvivor->GetWorld();
+
+	if (m_pLatestHouse != memory.pSelectedHouse) {
+		const FHouseBounds bounds = memory.pSelectedHouse->ptr->GetBounds();
+		const FVector outsideBounds = bounds.Origin + (bounds.Extent * 1.5);
+
+		const auto path = memory.pSurvivor->CalculatePath(outsideBounds);
+
+		m_pBehavior->SetPath(path);
+
+		m_pLatestHouse = memory.pSelectedHouse;
+	}
+
+	const auto steering = m_pBehavior->CalculateSteering(pWorld->GetDeltaSeconds(), *(memory.pSurvivor));
+	ISteeringBehavior::ApplySteering(memory.pSurvivor, steering);
+}
+
+void ExitHouseAction::LateExecute(SurvivorMemory& memory)
+{
+	if (!SurvivorUtils::IsSurvivorWithinHouse(memory.pSurvivor, memory.pSelectedHouse->ptr->GetBounds())) {
+		memory.pSelectedHouse->looted = true;
+		memory.pSelectedHouse = nullptr;
+		m_pLatestHouse = nullptr;
+
+
+		UE_LOG(LogTemp, Log, TEXT("Exited House"));
+	}
+}
+
 // LOOT ENTERED HOUSE 
+float LootHouseAction::Evaluate(const SurvivorMemory& memory)
+{
+	if (!memory.pSelectedHouse) return 0.0f;
+	
+	const auto& pInv = memory.pInventory;
+	
+	float value{};
+
+	if (SurvivorUtils::IsSurvivorWithinHouse(memory.pSurvivor, memory.pSelectedHouse->ptr->GetBounds())) {
+		const int numFreeSlots = SurvivorUtils::GetNumberOfFreeSlots(pInv);
+		value += static_cast<float>(numFreeSlots) * 5.0f;
+	}
+
+	return value;
+}
+
+void LootHouseAction::Execute(SurvivorMemory& memory)
+{
+	const float deltaTime = memory.pSurvivor->GetWorld()->GetDeltaSeconds();
+
+	// TODO : Look around house bounds
+	// TODO : Analyse and pick up any items
+
+	// Alternatively, I could have a "SearchHouse" action, and "PickUpItem" action
+	// The "PickUpItem" action can always activate, and the "SearchHouse" action simply moves around the house until it notices an item
+
+	memory.timeSpentInHouse += deltaTime;
+	if (memory.timeSpentInHouse >= SurvivorMemory::s_MAX_TIME_SPENT_IN_HOUSE) {
+		memory.pSelectedHouse->looted = true;
+		memory.timeSpentInHouse += 1.0f; // Ensure it is above enough
+	}
+}
