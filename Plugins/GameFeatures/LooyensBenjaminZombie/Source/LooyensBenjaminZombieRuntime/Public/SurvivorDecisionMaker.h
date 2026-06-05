@@ -31,6 +31,7 @@ public:
 	void AddHouseMemory(AHouse* pHouse);
 	void AddPurgeMemory(APurgeZone* pPurgeZone);
 	void AddZombieMemory(ABaseZombie* pZombie);
+	void AddItemMemory(ABaseItem* pItem);
 
 private:
 	SurvivorMemory m_Memory{};

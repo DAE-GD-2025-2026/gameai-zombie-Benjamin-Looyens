@@ -57,5 +57,9 @@ void UStudentPerceptor::OnPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 		if (ABaseZombie* pZombie = Cast<ABaseZombie>(Actor)) {
 			m_pDecisionMaker->AddZombieMemory(pZombie);
 		}
+
+		if (ABaseItem* pItem = Cast<ABaseItem>(Actor)) {
+			m_pDecisionMaker->AddItemMemory(pItem);
+		}
 	}
 }

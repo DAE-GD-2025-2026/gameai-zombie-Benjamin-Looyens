@@ -148,11 +148,32 @@ void USurvivorDecisionMaker::AddPurgeMemory(APurgeZone* pPurgeZone)
 void USurvivorDecisionMaker::AddZombieMemory(ABaseZombie* pZombie)
 {
 	auto& zombies = m_Memory.zombies;
-	for (const auto& zombie : zombies) {
-		if (zombie.ptr == pZombie) return; // Zombie already known
+	for (auto& zombie : zombies) {
+		if (zombie.ptr == pZombie) {
+			zombie.lastSeen = GetWorld()->GetTimeSeconds();
+			zombie.lastSeenPos = pZombie->GetActorLocation();
+			zombie.lastSeenVelocity = pZombie->GetVelocity();
+			
+			return; // Zombie already known
+		}
 	}
 
 	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("New zombie added to memory index [%i]"), zombies.Num()));
 	zombies.Add({ pZombie, GetWorld()->GetTimeSeconds(), pZombie->GetActorLocation(), pZombie->GetVelocity() });
+}
+
+void USurvivorDecisionMaker::AddItemMemory(ABaseItem* pItem)
+{
+	auto& items = m_Memory.items;
+	for (auto& item : items) {
+		if (item.ptr == pItem) {
+			item.lastSeen = GetWorld()->GetTimeSeconds();
+
+			return; // Item already known
+		}
+	}
+
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("New item added to memory index [%i]"), items.Num()));
+	items.Add({ pItem, GetWorld()->GetTimeSeconds() });
 }
 

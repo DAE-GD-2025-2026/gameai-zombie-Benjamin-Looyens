@@ -9,6 +9,7 @@ class ASurvivorPawn;
 class AHouse;
 class ABaseZombie;
 class APurgeZone;
+class ABaseItem;
 
 struct HouseMemory
 {
@@ -50,6 +51,16 @@ struct PurgeMemory
 	static constexpr float s_PURGE_DIAMETER = 100.0f;
 };
 
+struct ItemMemory
+{
+	ItemMemory(ABaseItem* pItem, double timeNow)
+		: ptr{ pItem }, lastSeen{ timeNow }
+	{};
+
+	ABaseItem* ptr;
+	double lastSeen;
+};
+
 struct SurvivorMemory
 {
 	// Add Memory of:
@@ -71,4 +82,6 @@ struct SurvivorMemory
 
 	TArray<ZombieMemory> zombies{};
 	TArray<PurgeMemory> purgeZones{};
+
+	TArray<ItemMemory> items{};
 };
