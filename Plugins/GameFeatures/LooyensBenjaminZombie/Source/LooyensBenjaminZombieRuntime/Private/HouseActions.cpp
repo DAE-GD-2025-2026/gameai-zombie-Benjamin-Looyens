@@ -196,11 +196,25 @@ void LootHouseAction::Execute(SurvivorMemory& memory)
 		const FBox houseBox = SurvivorUtils::HouseBoundsToBox(bounds);
 		const double& z = houseBox.Min.Z;
 
+		const FVector& survPos = memory.pSurvivor->GetActorLocation();
+
 		// TODO : Calculate closest point, and put that one first
 		path[0] = { houseBox.Min };
 		path[1] = { houseBox.Min.X, houseBox.Max.Y, z };
 		path[2] = { houseBox.Max };
 		path[3] = { houseBox.Max.X, houseBox.Min.Y, z };
+
+		std::pair<int, double> closestPointIndex{ 0, DBL_MAX };
+		for (int index{}; index < path.Num(); index++) {
+			const double curDistance = FVector::Distance(path[index], survPos);
+			
+			if (curDistance < closestPointIndex.second) {
+				closestPointIndex.first = index;
+				closestPointIndex.second = curDistance;
+			}
+		}
+
+		Algo::Rotate(path, closestPointIndex.first);
 
 		m_pBehavior->SetPath(path);
 	}
