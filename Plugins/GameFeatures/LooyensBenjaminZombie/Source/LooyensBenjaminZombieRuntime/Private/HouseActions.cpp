@@ -143,6 +143,7 @@ void ExitHouseAction::Execute(SurvivorMemory& memory)
 void ExitHouseAction::LateExecute(SurvivorMemory& memory)
 {
 	if (!SurvivorUtils::IsSurvivorWithinHouse(memory.pSurvivor, memory.pSelectedHouse->ptr->GetBounds())) {
+		memory.timeSpentInHouse = 0.0f;
 		memory.pSelectedHouse->looted = true;
 		memory.pSelectedHouse = nullptr;
 		m_pLatestHouse = nullptr;
@@ -219,8 +220,10 @@ void LootHouseAction::Execute(SurvivorMemory& memory)
 		m_pBehavior->SetPath(path);
 	}
 
-	const auto steering = m_pBehavior->CalculateSteering(deltaTime, *(memory.pSurvivor));
-	ISteeringBehavior::ApplySteering(memory.pSurvivor, steering); // TODO : Disable auto orient, and rotate constantly so it can see all items
+	SteeringOutput steering = m_pBehavior->CalculateSteering(deltaTime, *(memory.pSurvivor));
+	steering.AngularVelocity = 360.0f * deltaTime; // 180 degree rotation per second
+
+	ISteeringBehavior::ApplySteering(memory.pSurvivor, steering, false); // TODO : Disable auto orient, and rotate constantly so it can see all items
 
 	memory.timeSpentInHouse += deltaTime;
 	if (memory.timeSpentInHouse >= SurvivorMemory::s_MAX_TIME_SPENT_IN_HOUSE) {
