@@ -11,6 +11,7 @@
 
 #include "WanderAction.h"
 #include "HouseActions.h"
+#include "ItemActions.h"
 
 // Sets default values for this component's properties
 USurvivorDecisionMaker::USurvivorDecisionMaker()
@@ -48,6 +49,7 @@ void USurvivorDecisionMaker::Init()
 	m_Actions.Add(MakeUnique<EnterHouseAction>());
 	m_Actions.Add(MakeUnique<ExitHouseAction>());
 	m_Actions.Add(MakeUnique<LootHouseAction>());
+	m_Actions.Add(MakeUnique<CollectItemAction>());
 
 	// Goals & Actions to Add:
 	// - [GOAL] Search For Items
@@ -121,6 +123,8 @@ void USurvivorDecisionMaker::TickComponent(float DeltaTime, ELevelTick TickType,
 	if (m_Memory.purgeZones.Num() < prevPurgeNum) GEngine->AddOnScreenDebugMessage(-1, 2.5f, FColor::Yellow, FString::Printf(TEXT("Purge Zone Cleared!")));
 
 	// TODO : Somehow clear zombies that die in purge zones?
+
+	// TODO : Clear out items that havent been seen in a while?
 }
 
 void USurvivorDecisionMaker::AddHouseMemory(AHouse* pHouse)
