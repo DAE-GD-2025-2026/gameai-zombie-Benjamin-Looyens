@@ -147,12 +147,18 @@ void ExitHouseAction::LateExecute(SurvivorMemory& memory)
 		memory.pSelectedHouse = nullptr;
 		m_pLatestHouse = nullptr;
 
-
 		UE_LOG(LogTemp, Log, TEXT("Exited House"));
 	}
 }
 
 // LOOT ENTERED HOUSE 
+LootHouseAction::LootHouseAction()
+{
+	m_pBehavior = MakeUnique<PathFollow>();
+
+	UE_LOG(LogTemp, Log, TEXT("Loot House Action Created"));
+}
+
 float LootHouseAction::Evaluate(const SurvivorMemory& memory)
 {
 	if (!memory.pSelectedHouse) return 0.0f;
@@ -178,6 +184,29 @@ void LootHouseAction::Execute(SurvivorMemory& memory)
 
 	// Alternatively, I could have a "SearchHouse" action, and "PickUpItem" action
 	// The "PickUpItem" action can always activate, and the "SearchHouse" action simply moves around the house until it notices an item
+
+	if (m_pLatestHouse != memory.pSelectedHouse) {
+		m_pLatestHouse = memory.pSelectedHouse;
+		
+		TArray<FVector> path{};
+		path.SetNum(4);
+
+		FHouseBounds bounds = m_pLatestHouse->ptr->GetBounds();
+		bounds.Extent *= 0.5f;
+		const FBox houseBox = SurvivorUtils::HouseBoundsToBox(bounds);
+		const double& z = houseBox.Min.Z;
+
+		// TODO : Calculate closest point, and put that one first
+		path[0] = { houseBox.Min };
+		path[1] = { houseBox.Min.X, houseBox.Max.Y, z };
+		path[2] = { houseBox.Max };
+		path[3] = { houseBox.Max.X, houseBox.Min.Y, z };
+
+		m_pBehavior->SetPath(path);
+	}
+
+	const auto steering = m_pBehavior->CalculateSteering(deltaTime, *(memory.pSurvivor));
+	ISteeringBehavior::ApplySteering(memory.pSurvivor, steering); // TODO : Disable auto orient, and rotate constantly so it can see all items
 
 	memory.timeSpentInHouse += deltaTime;
 	if (memory.timeSpentInHouse >= SurvivorMemory::s_MAX_TIME_SPENT_IN_HOUSE) {

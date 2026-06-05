@@ -4,6 +4,7 @@
 
 // GENERAL:
 // HACK : A lot of Actions use a steering behavior at the end of them, maybe I should just make a steering action and call the base class Execute for these
+// In the Enter, Exit and Loot actions I kinda do the exact same thing with the "Latest House" thing
 
 struct HouseMemory;
 
@@ -41,22 +42,18 @@ private:
 	TUniquePtr<PathFollow> m_pBehavior{};
 
 	HouseMemory* m_pLatestHouse = nullptr;
-
-	// Leave house action:
-	// Check if survivor is within bounds of a house that has been visited, if so then yes
 };
 
 class LootHouseAction : public ISurvivorUtilityAction
 {
 public:
+	LootHouseAction();
+
 	virtual float Evaluate(const SurvivorMemory& memory) override;
 	virtual void Execute(SurvivorMemory& memory) override;
 
 private:
-	TUniquePtr<Seek> m_pBehavior{};
+	TUniquePtr<PathFollow> m_pBehavior{};
+
+	HouseMemory* m_pLatestHouse = nullptr;
 };
-
-
-// Scan for Items
-// Collect Item
-// Idk where from here lol
