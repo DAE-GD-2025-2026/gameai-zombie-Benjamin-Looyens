@@ -28,6 +28,11 @@ namespace SurvivorUtils {
 		return 0;
 	}
 
+	int GetMissingHealth(UHealthComponent* pHealth)
+	{
+		return pHealth->GetMaxHealth() - pHealth->GetHealth();
+	}
+
 	float GetHealthPercent(UHealthComponent* pHealth)
 	{
 		if (!pHealth) return 0.0f;

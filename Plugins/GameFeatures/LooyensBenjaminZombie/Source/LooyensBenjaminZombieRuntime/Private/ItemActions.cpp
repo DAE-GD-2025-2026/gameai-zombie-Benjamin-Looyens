@@ -7,6 +7,7 @@
 #include <GameAI_Zombie/Common/StaminaComponent.h>
 #include "SurvivorUtils.h"
 
+// PICKUP
 float CollectItemAction::Evaluate(const SurvivorMemory& memory)
 {
 	if (memory.items.Num() <= 0) return 0.0f; // No known items
@@ -55,9 +56,69 @@ void CollectItemAction::LateExecute(SurvivorMemory& memory)
 {
 	memory.items.RemoveAt(m_PickupableIndex);
 
-	//memory.items.RemoveAll([&](const ItemMemory& item) {
-	//	return item.ptr == m_pPickupable->ptr;
-	//});
-	
 	m_PickupableIndex = -1;
+}
+
+// HEAL
+float HealAction::Evaluate(const SurvivorMemory& memory)
+{
+	// Check remaining HP
+	// Compare to Medkits in inventory (if have any)
+	// if medkit value >= missing hp store index to that medkit
+	// Use medkit through index
+	// Destroy medkit through index
+	// Set inventory slot as nullptr?
+
+	const auto& inv = memory.pInventory;
+	const auto& hp = memory.pHealth;
+	const auto& items = inv->GetInventory();
+	const int missingHP = SurvivorUtils::GetMissingHealth(hp);;
+	const int curHP = hp->GetHealth();
+	const int maxHP = hp->GetMaxHealth();
+
+	if (missingHP == 0) return 0.0f;
+
+	float value{ static_cast<float>(missingHP) };
+
+	std::pair<int, int> bestMedKit{ 0, -1 }; // first: index, second: heal value
+	for (int index{}; index < items.Num(); index++) {
+		const auto& item = items[index];
+		
+		if (!item) continue;
+
+		switch (item->GetItemType()) {
+		case EItemType::Medkit:
+		{
+			const int healVal = item->GetValue();
+			if (healVal > bestMedKit.second) {
+				bestMedKit.first = index;
+				bestMedKit.second = healVal;
+
+				if (missingHP + healVal == maxHP) index = items.Num(); // artificial "break" since I'm in a switch case
+			}
+			break;
+		}
+		}
+	}
+
+	if (bestMedKit.second == -1) return 0.0f; // No medkits found
+
+	const int healVal = static_cast<float>(curHP + bestMedKit.second); // the higher the filled HP is, the better
+	value += healVal;
+	if (value > 10.0f) value -= (healVal - static_cast<float>(maxHP)) * 5.0f; // deduct points for overflowing hp
+
+	m_HealableIndex = bestMedKit.first;
+
+	return value;
+}
+
+void HealAction::Execute(SurvivorMemory& memory)
+{
+	memory.pInventory->UseItem(m_HealableIndex);
+	memory.pInventory->RemoveItem(m_HealableIndex);
+}
+
+void HealAction::LateExecute(SurvivorMemory& memory)
+{
+	m_HealableIndex = -1;
 }

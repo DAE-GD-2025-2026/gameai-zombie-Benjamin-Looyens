@@ -9,6 +9,7 @@ struct FHouseBounds;
 namespace SurvivorUtils {
 	int GetNumberOfFreeSlots(UInventoryComponent* pInventory);
 	int GetNumberOfOwnedItems(UInventoryComponent* pInventory);
+	int GetMissingHealth(UHealthComponent* pHealth);
 	float GetHealthPercent(UHealthComponent* pHealth);
 	float GetStaminaPercent(UStaminaComponent* pStamina);
 	FBox HouseBoundsToBox(const FHouseBounds& houseBounds);

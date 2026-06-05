@@ -180,12 +180,6 @@ void LootHouseAction::Execute(SurvivorMemory& memory)
 {
 	const float deltaTime = memory.pSurvivor->GetWorld()->GetDeltaSeconds();
 
-	// TODO : Look around house bounds
-	// TODO : Analyse and pick up any items
-
-	// Alternatively, I could have a "SearchHouse" action, and "PickUpItem" action
-	// The "PickUpItem" action can always activate, and the "SearchHouse" action simply moves around the house until it notices an item
-
 	if (m_pLatestHouse != memory.pSelectedHouse) {
 		m_pLatestHouse = memory.pSelectedHouse;
 		
@@ -240,4 +234,9 @@ void LootHouseAction::Execute(SurvivorMemory& memory)
 		memory.pSelectedHouse->looted = true;
 		memory.timeSpentInHouse += 1.0f; // Ensure it is above enough
 	}
+
+	// TODO : Store Info on House
+	// If inventory is full, instead of picking stuff up, store it in memory
+	// To do this I still need to add a section to memory for this
+	// And I need to be able to check what items are in fron of the survivor
 }

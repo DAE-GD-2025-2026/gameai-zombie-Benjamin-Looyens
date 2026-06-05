@@ -50,6 +50,7 @@ void USurvivorDecisionMaker::Init()
 	m_Actions.Add(MakeUnique<ExitHouseAction>());
 	m_Actions.Add(MakeUnique<LootHouseAction>());
 	m_Actions.Add(MakeUnique<CollectItemAction>());
+	m_Actions.Add(MakeUnique<HealAction>());
 
 	// Goals & Actions to Add:
 	// - [GOAL] Search For Items
