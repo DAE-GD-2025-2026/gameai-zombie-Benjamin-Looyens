@@ -115,7 +115,7 @@ float ExitHouseAction::Evaluate(const SurvivorMemory& memory)
 
 	// The longer we spend in the house, the more likely we want to leave
 	// However, we first want to make sure it is looted
-	value += memory.timeSpentInHouse * static_cast<float>(SurvivorUtils::IsSurvivorWithinHouse(memory.pSurvivor, memory.pSelectedHouse->ptr->GetBounds())); 
+	value += memory.timeSpentInHouse * static_cast<float>(SurvivorUtils::IsSurvivorWithinHouse(memory.pSurvivor, memory.pSelectedHouse->ptr->GetBounds())) * 3.0f; 
 	//value += memory.timeSpentInHouse * static_cast<float>(memory.pSelectedHouse->looted); 
 
 	return value;
@@ -193,17 +193,23 @@ void LootHouseAction::Execute(SurvivorMemory& memory)
 		path.SetNum(4);
 
 		FHouseBounds bounds = m_pLatestHouse->ptr->GetBounds();
-		bounds.Extent *= 0.5f;
+		bounds.Extent *= 0.5f; // TODO : Scale this off the SIZE of each bounds value (Eg: greater X bounds, scale that more, etc)
 		const FBox houseBox = SurvivorUtils::HouseBoundsToBox(bounds);
 		const double& z = houseBox.Min.Z;
 
 		const FVector& survPos = memory.pSurvivor->GetActorLocation();
 
 		// TODO : Calculate closest point, and put that one first
-		path[0] = { houseBox.Min };
-		path[1] = { houseBox.Min.X, houseBox.Max.Y, z };
-		path[2] = { houseBox.Max };
-		path[3] = { houseBox.Max.X, houseBox.Min.Y, z };
+
+		const FVector bl = houseBox.Min;
+		const FVector tl = { houseBox.Min.X, houseBox.Max.Y, z };
+		const FVector tr = houseBox.Max;
+		const FVector br = { houseBox.Max.X, houseBox.Min.Y, z };
+
+		path[0] = bl;
+		path[1] = tl;
+		path[2] = tr;
+		path[3] = br;
 
 		std::pair<int, double> closestPointIndex{ 0, DBL_MAX };
 		for (int index{}; index < path.Num(); index++) {
@@ -216,6 +222,10 @@ void LootHouseAction::Execute(SurvivorMemory& memory)
 		}
 
 		Algo::Rotate(path, closestPointIndex.first);
+
+		path.SetNum(6);
+		path[4] = path[0]; // Back to start
+		path[5] = path[2]; // Diagonal across (to check middle of house)
 
 		m_pBehavior->SetPath(path);
 	}

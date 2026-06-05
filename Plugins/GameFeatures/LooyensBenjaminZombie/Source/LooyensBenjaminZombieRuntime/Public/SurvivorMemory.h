@@ -78,7 +78,7 @@ struct SurvivorMemory
 	TArray<HouseMemory> houses{};
 	HouseMemory* pSelectedHouse = nullptr;
 	float timeSpentInHouse{};
-	static constexpr float s_MAX_TIME_SPENT_IN_HOUSE = 7.5f;
+	static constexpr float s_MAX_TIME_SPENT_IN_HOUSE = 9.0f;
 
 	TArray<ZombieMemory> zombies{};
 	TArray<PurgeMemory> purgeZones{};
