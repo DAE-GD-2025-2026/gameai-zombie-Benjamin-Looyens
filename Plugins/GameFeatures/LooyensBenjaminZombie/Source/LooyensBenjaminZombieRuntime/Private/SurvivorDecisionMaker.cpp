@@ -12,6 +12,7 @@
 #include "WanderAction.h"
 #include "HouseActions.h"
 #include "ItemActions.h"
+#include "ZombieActions.h"
 
 // Sets default values for this component's properties
 USurvivorDecisionMaker::USurvivorDecisionMaker()
@@ -51,6 +52,7 @@ void USurvivorDecisionMaker::Init()
 	m_Actions.Add(MakeUnique<LootHouseAction>());
 	m_Actions.Add(MakeUnique<CollectItemAction>());
 	m_Actions.Add(MakeUnique<HealAction>());
+	m_Actions.Add(MakeUnique<ShootZombieAction>());
 
 	// Goals & Actions to Add:
 	// - [GOAL] Search For Items
@@ -119,16 +121,21 @@ void USurvivorDecisionMaker::TickComponent(float DeltaTime, ELevelTick TickType,
 	// Update Memory
 	const double curTime = GetWorld()->GetTimeSeconds();
 
-	// TEMP : Debug for when remove purge zone
-	const int prevPurgeNum = m_Memory.purgeZones.Num();
-
 	m_Memory.purgeZones.RemoveAll([&](const PurgeMemory& purge) {
 		return curTime - purge.timeCreated >= PurgeMemory::s_PURGE_TIMER; // Purge Zone Should have expired
 	});
 
-	if (m_Memory.purgeZones.Num() < prevPurgeNum) GEngine->AddOnScreenDebugMessage(-1, 2.5f, FColor::Yellow, FString::Printf(TEXT("Purge Zone Cleared!")));
-
 	// TODO : Somehow clear zombies that die in purge zones?
+	m_Memory.zombies.RemoveAll([&](const ZombieMemory& zombie) {
+		//return !zombie.ptr; // Zombie == nullptr
+		
+		if (!zombie.ptr) {
+			UE_LOG(LogTemp, Log, TEXT("Removed Zombie!"));
+			return true; // Zombie == nullptr
+		}
+
+		return false;
+	});
 
 	// TODO : Clear out items that havent been seen in a while?
 }

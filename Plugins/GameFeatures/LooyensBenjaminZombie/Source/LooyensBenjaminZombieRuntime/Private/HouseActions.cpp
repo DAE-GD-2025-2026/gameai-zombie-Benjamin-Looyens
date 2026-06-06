@@ -20,6 +20,8 @@ float SelectHouseAction::Evaluate(const SurvivorMemory& memory)
 		}
 	);
 
+	// TODO : Highly prioritize if dont have a weapon
+
 	// TODO : Take into account full inventory
 	return static_cast<float>(numUnlooted) * 10.0f; // The more houses that aren't looted, the higher the value
 }

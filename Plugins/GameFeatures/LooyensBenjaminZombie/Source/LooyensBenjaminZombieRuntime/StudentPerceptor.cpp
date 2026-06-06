@@ -55,6 +55,7 @@ void UStudentPerceptor::OnPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 		}
 
 		if (ABaseZombie* pZombie = Cast<ABaseZombie>(Actor)) {
+			// Somehow also add when taking damage
 			m_pDecisionMaker->AddZombieMemory(pZombie);
 		}
 
