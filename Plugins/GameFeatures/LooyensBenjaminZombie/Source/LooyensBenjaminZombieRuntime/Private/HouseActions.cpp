@@ -194,8 +194,12 @@ void LootHouseAction::Execute(SurvivorMemory& memory)
 		TArray<FVector> path{};
 		path.SetNum(4);
 
+		const float agentRadius = memory.pSurvivor->GetSimpleCollisionRadius() * 4.0f;
+
 		FHouseBounds bounds = m_pLatestHouse->ptr->GetBounds();
-		bounds.Extent *= 0.5f; // TODO : Scale this off the SIZE of each bounds value (Eg: greater X bounds, scale that more, etc)
+
+		bounds.Extent -= { agentRadius, agentRadius, 0.0f };
+
 		const FBox houseBox = SurvivorUtils::HouseBoundsToBox(bounds);
 		const double& z = houseBox.Min.Z;
 
