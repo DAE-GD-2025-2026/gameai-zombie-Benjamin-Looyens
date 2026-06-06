@@ -49,7 +49,17 @@ void CollectItemAction::Execute(SurvivorMemory& memory)
 
 	UE_LOG(LogTemp, Log, TEXT("Free slot found at [%i]"), freeSlot);
 
-	inv->GrabItem(freeSlot, memory.items[m_PickupableIndex].ptr);
+	auto& item = memory.items[m_PickupableIndex];
+
+	switch (item.ptr->GetItemType()) {
+	case EItemType::Garbage:
+		if (!item.ptr->Destroy()) UE_LOG(LogTemp, Log, TEXT("CANT DESTROY!"));
+		break;
+	default:
+		inv->GrabItem(freeSlot, item.ptr);
+	}
+
+	// TODO : Change destorying Garbage to it's own action
 }
 
 void CollectItemAction::LateExecute(SurvivorMemory& memory)
