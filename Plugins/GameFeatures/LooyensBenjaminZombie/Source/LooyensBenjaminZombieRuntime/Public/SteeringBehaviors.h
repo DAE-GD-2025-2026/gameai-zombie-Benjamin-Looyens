@@ -137,6 +137,8 @@ public:
 	void SetPath(const TArray<FVector>& path);
 	virtual SteeringOutput CalculateSteering(float DeltaTime, const ASurvivorPawn& Survivor) override;
 
+	bool HasFinishedPath(const ASurvivorPawn& Survivor) const;
+
 private:
 	TUniquePtr<Seek> pSeek = nullptr;
 	TUniquePtr<Arrive> pArrive = nullptr;

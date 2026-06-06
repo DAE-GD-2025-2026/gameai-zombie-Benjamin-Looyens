@@ -51,6 +51,7 @@ public:
 
 	virtual float Evaluate(const SurvivorMemory& memory) override;
 	virtual void Execute(SurvivorMemory& memory) override;
+	virtual void LateExecute(SurvivorMemory& memory) override;
 
 private:
 	TUniquePtr<PathFollow> m_pBehavior{};

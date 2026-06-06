@@ -135,11 +135,3 @@ namespace SteeringPawnAccess {
 	float GetPawnMaxLinearSpeed(const APawn& pPawn);
 	FVector2D GetPawnLinearVelocity(const APawn& pPawn);
 }
-
-//float GetPawnMaxAngularSpeed(APawn* pPawn);
-//void SetPawnMaxAngularSpeed(APawn* pPawn, float maxAngularSpeed);
-//float GetPawnAngularVelocity(APawn* pPawn);
-//bool IsPawnAutoOrienting(APawn* pPawn);
-//void SetPawnIsAutoOrienting(APawn* pPawn, bool bAutoOrient);
-//float GetPawnMass(APawn* pPawn);
-//void SetPawnMass(APawn* pPawn, float Mass);

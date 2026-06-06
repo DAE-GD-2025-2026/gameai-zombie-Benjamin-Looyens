@@ -117,8 +117,14 @@ float ExitHouseAction::Evaluate(const SurvivorMemory& memory)
 
 	// The longer we spend in the house, the more likely we want to leave
 	// However, we first want to make sure it is looted
-	value += memory.timeSpentInHouse * static_cast<float>(SurvivorUtils::IsSurvivorWithinHouse(memory.pSurvivor, memory.pSelectedHouse->ptr->GetBounds())) * 3.0f; 
+	//value += memory.timeSpentInHouse * static_cast<float>(SurvivorUtils::IsSurvivorWithinHouse(memory.pSurvivor, memory.pSelectedHouse->ptr->GetBounds())) * 3.0f; 
 	//value += memory.timeSpentInHouse * static_cast<float>(memory.pSelectedHouse->looted); 
+
+	if (memory.pSelectedHouse->looted) {
+		value += memory.timeSpentInHouse;
+		value += 16.0f; // TODO : Make this more dynamic
+	}
+
 
 	return value;
 }
@@ -231,14 +237,21 @@ void LootHouseAction::Execute(SurvivorMemory& memory)
 
 	ISteeringBehavior::ApplySteering(memory.pSurvivor, steering, false); // TODO : Disable auto orient, and rotate constantly so it can see all items
 
-	memory.timeSpentInHouse += deltaTime;
-	if (memory.timeSpentInHouse >= SurvivorMemory::s_MAX_TIME_SPENT_IN_HOUSE) {
-		memory.pSelectedHouse->looted = true;
-		memory.timeSpentInHouse += 1.0f; // Ensure it is above enough
-	}
+	//memory.timeSpentInHouse += deltaTime;
+	//if (memory.timeSpentInHouse >= SurvivorMemory::s_MAX_TIME_SPENT_IN_HOUSE) {
+	//	memory.pSelectedHouse->looted = true;
+	//	memory.timeSpentInHouse += 1.0f; // Ensure it is above enough
+	//}
 
 	// TODO : Store Info on House
 	// If inventory is full, instead of picking stuff up, store it in memory
 	// To do this I still need to add a section to memory for this
 	// And I need to be able to check what items are in fron of the survivor
+}
+
+void LootHouseAction::LateExecute(SurvivorMemory& memory)
+{
+	if (m_pBehavior->HasFinishedPath(*(memory.pSurvivor))) {
+		memory.pSelectedHouse->looted = true;
+	}
 }
