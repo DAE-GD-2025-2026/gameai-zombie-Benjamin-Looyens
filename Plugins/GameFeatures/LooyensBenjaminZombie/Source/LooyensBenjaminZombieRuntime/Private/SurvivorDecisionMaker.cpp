@@ -96,8 +96,28 @@ void USurvivorDecisionMaker::TickComponent(float DeltaTime, ELevelTick TickType,
 
 	if (m_PrevAction != -1) m_Actions[m_PrevAction]->LateExecute(m_Memory); // Logic after movement for previous action
 
-	constexpr int DEBUG_MESSAGE_OFFSET = 6;
+	// Update Old Memory
+	const double curTime = GetWorld()->GetTimeSeconds();
 
+	m_Memory.purgeZones.RemoveAll([&](const PurgeMemory& purge) {
+		return curTime - purge.timeCreated >= PurgeMemory::s_PURGE_TIMER; // Purge Zone Should have expired
+		});
+
+	// TODO : Somehow clear zombies that die in purge zones?
+	m_Memory.zombies.RemoveAll([&](const ZombieMemory& zombie) {
+		//return !zombie.ptr; // Zombie == nullptr
+
+		if (!IsValid(zombie.ptr)) {
+			UE_LOG(LogTemp, Log, TEXT("Removed Zombie!"));
+			return true; // Zombie == nullptr
+		}
+
+		return false;
+		});
+	// TODO : Clear out items that havent been seen in a while?
+
+
+	constexpr int DEBUG_MESSAGE_OFFSET = 6;
 	std::pair<int, float> bestAction{ 0, -50.0f };
 	for (size_t index{}; index < m_Actions.Num(); index++) {
 		const auto& pCurAction = m_Actions[index];
@@ -117,27 +137,6 @@ void USurvivorDecisionMaker::TickComponent(float DeltaTime, ELevelTick TickType,
 	// Maybe store steering behaviors elsewhere (in memory?)
 	// As they could potentially be better off being reused sometimes?
 	// Depends on the behavior specifically though, as some probably prefer to keep their internal storage
-
-	// Update Memory
-	const double curTime = GetWorld()->GetTimeSeconds();
-
-	m_Memory.purgeZones.RemoveAll([&](const PurgeMemory& purge) {
-		return curTime - purge.timeCreated >= PurgeMemory::s_PURGE_TIMER; // Purge Zone Should have expired
-	});
-
-	// TODO : Somehow clear zombies that die in purge zones?
-	m_Memory.zombies.RemoveAll([&](const ZombieMemory& zombie) {
-		//return !zombie.ptr; // Zombie == nullptr
-		
-		if (!zombie.ptr) {
-			UE_LOG(LogTemp, Log, TEXT("Removed Zombie!"));
-			return true; // Zombie == nullptr
-		}
-
-		return false;
-	});
-
-	// TODO : Clear out items that havent been seen in a while?
 }
 
 void USurvivorDecisionMaker::AddHouseMemory(AHouse* pHouse)
