@@ -40,6 +40,13 @@ namespace SurvivorUtils {
 		return static_cast<float>(pHealth->GetHealth()) / static_cast<float>(pHealth->GetMaxHealth());
 	}
 
+	float GetMissingStamina(UStaminaComponent* pStamina)
+	{
+		if (!pStamina) return 0.0f;
+
+		return pStamina->GetMaxStamina() - pStamina->GetCurrentStamina();
+	}
+
 	float GetStaminaPercent(UStaminaComponent* pStamina)
 	{
 		if (!pStamina) return 0.0f;

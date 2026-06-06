@@ -52,6 +52,7 @@ void USurvivorDecisionMaker::Init()
 	m_Actions.Add(MakeUnique<LootHouseAction>());
 	m_Actions.Add(MakeUnique<CollectItemAction>());
 	m_Actions.Add(MakeUnique<HealAction>());
+	m_Actions.Add(MakeUnique<EatAction>());
 	m_Actions.Add(MakeUnique<ShootZombieAction>());
 
 	// Goals & Actions to Add:

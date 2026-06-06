@@ -11,6 +11,7 @@ namespace SurvivorUtils {
 	int GetNumberOfOwnedItems(UInventoryComponent* pInventory);
 	int GetMissingHealth(UHealthComponent* pHealth);
 	float GetHealthPercent(UHealthComponent* pHealth);
+	float GetMissingStamina(UStaminaComponent* pStamina);
 	float GetStaminaPercent(UStaminaComponent* pStamina);
 	FBox HouseBoundsToBox(const FHouseBounds& houseBounds);
 	bool IsSurvivorWithinHouse(ASurvivorPawn* pSurvivor, const FHouseBounds& houseBounds);

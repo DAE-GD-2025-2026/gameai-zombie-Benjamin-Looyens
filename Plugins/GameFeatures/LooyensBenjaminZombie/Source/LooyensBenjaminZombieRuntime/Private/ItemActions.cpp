@@ -134,3 +134,61 @@ void HealAction::LateExecute(SurvivorMemory& memory)
 {
 	m_HealableIndex = -1;
 }
+
+float EatAction::Evaluate(const SurvivorMemory& memory)
+{
+	const auto& pInv = memory.pInventory;
+	const auto& pStamina = memory.pStamina;
+	const auto& pItems = pInv->GetInventory();
+	const float missingStamina = SurvivorUtils::GetMissingStamina(pStamina);;
+	const float curStamina = pStamina->GetCurrentStamina();
+	const float maxStamina = pStamina->GetMaxStamina();
+
+	if (missingStamina < 1.0f) return 0.0f;
+
+	float value{ missingStamina };
+
+	std::pair<int, int> bestFood{ 0, -1 }; // first: index, second: heal value
+	for (int index{}; index < pItems.Num(); index++) {
+		const auto& pItem = pItems[index];
+
+		if (!pItem) continue;
+
+		switch (pItem->GetItemType()) {
+		case EItemType::Food:
+		{
+			const int foodVal = pItem->GetValue();
+			if (foodVal > bestFood.second) {
+				bestFood.first = index;
+				bestFood.second = foodVal;
+
+				const float newStamina = curStamina + static_cast<float>(foodVal);
+				if (newStamina > (maxStamina - 1.0f) &&
+					newStamina < (maxStamina + 1.0f)) index = pItems.Num(); // artificial "break" since I'm in a switch case
+			}
+			break;
+		}
+		}
+	}
+
+	if (bestFood.second == -1) return 0.0f; // No medkits found
+
+	const int foodVal = static_cast<int>(curStamina) + bestFood.second; // the higher the filled stamina is, the better
+	value += static_cast<float>(foodVal);
+	if (static_cast<float>(bestFood.second) + curStamina > maxStamina) value -= foodVal * 5.0f; // deduct points for overflowing stamina
+
+	m_EatableIndex = bestFood.first;
+
+	return value;
+}
+
+void EatAction::Execute(SurvivorMemory& memory)
+{
+	memory.pInventory->UseItem(m_EatableIndex);
+	memory.pInventory->RemoveItem(m_EatableIndex);
+}
+
+void EatAction::LateExecute(SurvivorMemory& memory)
+{
+	m_EatableIndex = -1;
+}
