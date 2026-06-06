@@ -62,6 +62,13 @@ EnterHouseAction::EnterHouseAction()
 
 float EnterHouseAction::Evaluate(const SurvivorMemory& memory)
 {
+	// TODO : EXIT HOUSE WHEN FULL INVENTORY
+	// House is not marked as looted when attaining a full inventory
+	// So will either wander or get stuck in the "enter house" state
+	
+	// Furthermore, later when inventory clears up the selecting house is messy
+
+
 	if (!memory.pSelectedHouse) return 0.0f; // no unlooted house within memory
 
 	const auto& pInv = memory.pInventory;
@@ -190,14 +197,9 @@ void LootHouseAction::Execute(SurvivorMemory& memory)
 
 	if (m_pLatestHouse != memory.pSelectedHouse) {
 		m_pLatestHouse = memory.pSelectedHouse;
-		
-		TArray<FVector> path{};
-		path.SetNum(4);
-
-		const float agentRadius = memory.pSurvivor->GetSimpleCollisionRadius() * 4.0f;
-
+	
+		const float agentRadius = memory.pSurvivor->GetSimpleCollisionRadius() * 4.15f;
 		FHouseBounds bounds = m_pLatestHouse->ptr->GetBounds();
-
 		bounds.Extent -= { agentRadius, agentRadius, 0.0f };
 
 		const FBox houseBox = SurvivorUtils::HouseBoundsToBox(bounds);
@@ -211,6 +213,9 @@ void LootHouseAction::Execute(SurvivorMemory& memory)
 		const FVector tl = { houseBox.Min.X, houseBox.Max.Y, z };
 		const FVector tr = houseBox.Max;
 		const FVector br = { houseBox.Max.X, houseBox.Min.Y, z };
+
+		TArray<FVector> path{};
+		path.SetNum(4);
 
 		path[0] = bl;
 		path[1] = tl;
@@ -229,9 +234,11 @@ void LootHouseAction::Execute(SurvivorMemory& memory)
 
 		Algo::Rotate(path, closestPointIndex.first);
 
-		path.SetNum(6);
+		path.SetNum(8);
 		path[4] = path[0]; // Back to start
 		path[5] = path[2]; // Diagonal across (to check middle of house)
+		path[6] = path[1]; // Back to second
+		path[7] = path[3]; // Diagonal across (to check middle of house)
 
 		m_pBehavior->SetPath(path);
 	}
