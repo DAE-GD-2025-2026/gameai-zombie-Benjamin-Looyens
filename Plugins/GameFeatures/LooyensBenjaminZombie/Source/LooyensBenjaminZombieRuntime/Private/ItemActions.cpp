@@ -12,6 +12,8 @@ float CollectItemAction::Evaluate(const SurvivorMemory& memory)
 {
 	if (memory.items.Num() <= 0) return 0.0f; // No known items
 
+	m_PickupableIndex = -1;
+	
 	const auto& pInv = memory.pInventory;
 	const int freeSlots = SurvivorUtils::GetNumberOfFreeSlots(pInv);
 
@@ -49,7 +51,7 @@ void CollectItemAction::Execute(SurvivorMemory& memory)
 
 	UE_LOG(LogTemp, Log, TEXT("Free slot found at [%i]"), freeSlot);
 
-	auto& item = memory.items[m_PickupableIndex];
+	auto& item = memory.items[m_PickupableIndex]; // It has crashed here before, but only once and I was not able to reproduce it at all?
 
 	switch (item.ptr->GetItemType()) {
 	case EItemType::Garbage:
@@ -104,7 +106,7 @@ float HealAction::Evaluate(const SurvivorMemory& memory)
 				bestMedKit.first = index;
 				bestMedKit.second = healVal;
 
-				if (missingHP + healVal == maxHP) index = pItems.Num(); // artificial "break" since I'm in a switch case
+				if (curHP + healVal == maxHP) index = pItems.Num(); // artificial "break" since I'm in a switch case
 			}
 			break;
 		}
@@ -113,8 +115,8 @@ float HealAction::Evaluate(const SurvivorMemory& memory)
 
 	if (bestMedKit.second == -1) return 0.0f; // No medkits found
 
-	const int healVal = static_cast<float>(curHP + bestMedKit.second); // the higher the filled HP is, the better
-	value += healVal;
+	const int healVal = curHP + bestMedKit.second; // the higher the filled HP is, the better
+	value += static_cast<float>(healVal);
 	if (value > 10.0f) value -= (healVal - static_cast<float>(maxHP)) * 5.0f; // deduct points for overflowing hp
 
 	m_HealableIndex = bestMedKit.first;
