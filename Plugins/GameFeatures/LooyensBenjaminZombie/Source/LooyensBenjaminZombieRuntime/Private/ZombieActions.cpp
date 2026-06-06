@@ -30,7 +30,8 @@ float ShootZombieAction::Evaluate(const SurvivorMemory& memory)
 		const auto& zombie = zombies[index];
 		const double distance = FVector::DistSquared(zombie.ptr->GetActorLocation(), memory.pSurvivor->GetActorLocation());
 		
-		if (distance <= (s_MAXIMUM_DISTANCE_AWAY * s_MAXIMUM_DISTANCE_AWAY)) {
+		// TODO : Differentiate pistol & shotgun
+		if (distance <= (s_MAXIMUM_DISTANCE_AWAY_SHOTGUN * s_MAXIMUM_DISTANCE_AWAY_SHOTGUN)) {
 			// Within shooting range
 			withinRange++;
 
@@ -93,9 +94,8 @@ void ShootZombieAction::Execute(SurvivorMemory& memory)
 	auto& pSurvivor = memory.pSurvivor;
 	auto& closeZombie = memory.zombies[m_ClosestZombieIndex];
 
-	const FVector& zombieLocation = closeZombie.ptr->GetActorLocation();
-	const FVector toZombie = zombieLocation - pSurvivor->GetActorLocation();
-	const FVector toZombieXY = { toZombie.X, toZombie.Y, 0 };
+	const FVector toZombie = closeZombie.ptr->GetActorLocation() - pSurvivor->GetActorLocation();
+	const FVector toZombieXY{ toZombie.X, toZombie.Y, 0 };
 	pSurvivor->SetActorRotation(toZombieXY.ToOrientationRotator());
 }
 

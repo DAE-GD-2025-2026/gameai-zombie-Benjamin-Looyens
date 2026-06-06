@@ -16,5 +16,6 @@ private:
 
 	// TODO : Figure out these values
 	static constexpr float s_MINIMUM_DISTANCE_AWAY = 100.0f; 
-	static constexpr float s_MAXIMUM_DISTANCE_AWAY = 600.0f; 
+	static constexpr float s_MAXIMUM_DISTANCE_AWAY_PISTOL = 600.0f; 
+	static constexpr float s_MAXIMUM_DISTANCE_AWAY_SHOTGUN = 300.0f; 
 };

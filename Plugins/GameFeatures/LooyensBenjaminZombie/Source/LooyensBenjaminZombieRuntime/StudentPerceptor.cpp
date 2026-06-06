@@ -55,12 +55,17 @@ void UStudentPerceptor::OnPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 		}
 
 		if (ABaseZombie* pZombie = Cast<ABaseZombie>(Actor)) {
-			// Somehow also add when taking damage
 			m_pDecisionMaker->AddZombieMemory(pZombie);
 		}
 
 		if (ABaseItem* pItem = Cast<ABaseItem>(Actor)) {
 			m_pDecisionMaker->AddItemMemory(pItem);
+		}
+	}
+	else {
+		// Mark the zombie as not seen somehow?
+		if (ABaseZombie* pZombie = Cast<ABaseZombie>(Actor)) {
+			m_pDecisionMaker->AddZombieMemory(pZombie);
 		}
 	}
 }

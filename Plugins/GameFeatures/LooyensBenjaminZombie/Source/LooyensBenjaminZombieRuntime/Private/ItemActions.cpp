@@ -157,6 +157,10 @@ float EatAction::Evaluate(const SurvivorMemory& memory)
 		switch (pItem->GetItemType()) {
 		case EItemType::Food:
 		{
+			// TODO : Fix Medkit & Food Logic
+			// Fix logic with the fact that higher isnt actually better
+			// If the food has less overflow, it is also much better
+
 			const int foodVal = pItem->GetValue();
 			if (foodVal > bestFood.second) {
 				bestFood.first = index;
@@ -175,7 +179,7 @@ float EatAction::Evaluate(const SurvivorMemory& memory)
 
 	const int foodVal = static_cast<int>(curStamina) + bestFood.second; // the higher the filled stamina is, the better
 	value += static_cast<float>(foodVal);
-	if (static_cast<float>(bestFood.second) + curStamina > maxStamina) value -= foodVal * 5.0f; // deduct points for overflowing stamina
+	if (static_cast<float>(bestFood.second) + curStamina > maxStamina) value -= foodVal * 2.0f; // deduct points for overflowing stamina
 
 	m_EatableIndex = bestFood.first;
 
