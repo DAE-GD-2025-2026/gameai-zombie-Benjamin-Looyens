@@ -12,13 +12,13 @@ float CollectItemAction::Evaluate(const SurvivorMemory& memory)
 {
 	if (memory.items.Num() <= 0) return 0.0f; // No known items
 
-	const auto& inv = memory.pInventory;
-	const int freeSlots = SurvivorUtils::GetNumberOfFreeSlots(inv);
+	const auto& pInv = memory.pInventory;
+	const int freeSlots = SurvivorUtils::GetNumberOfFreeSlots(pInv);
 
 	if (freeSlots <= 0) return 0.0f; // No free item slots (maybe I can do some logic to switch out items though)
 
 	const auto& items = memory.items;
-	const float pickupRange = inv->GetPickupRange();
+	const float pickupRange = pInv->GetPickupRange();
 
 	// TODO : some logic on deciding if interested in the pickup
 
@@ -38,12 +38,12 @@ void CollectItemAction::Execute(SurvivorMemory& memory)
 {
 	if (m_PickupableIndex == -1) return;
 
-	const auto& inv = memory.pInventory;
-	const auto& ownedItems = inv->GetInventory();
+	const auto& pInv = memory.pInventory;
+	const auto& ownedItems = pInv->GetInventory();
 
 	int freeSlot{};
-	for (const auto& item : ownedItems) {
-		if (item) freeSlot++;
+	for (const auto& pItem : ownedItems) {
+		if (pItem) freeSlot++;
 		else break;
 	}
 
@@ -56,7 +56,7 @@ void CollectItemAction::Execute(SurvivorMemory& memory)
 		if (!item.ptr->Destroy()) UE_LOG(LogTemp, Log, TEXT("CANT DESTROY!"));
 		break;
 	default:
-		inv->GrabItem(freeSlot, item.ptr);
+		pInv->GrabItem(freeSlot, item.ptr);
 	}
 
 	// TODO : Change destorying Garbage to it's own action
@@ -79,32 +79,32 @@ float HealAction::Evaluate(const SurvivorMemory& memory)
 	// Destroy medkit through index
 	// Set inventory slot as nullptr?
 
-	const auto& inv = memory.pInventory;
-	const auto& hp = memory.pHealth;
-	const auto& items = inv->GetInventory();
-	const int missingHP = SurvivorUtils::GetMissingHealth(hp);;
-	const int curHP = hp->GetHealth();
-	const int maxHP = hp->GetMaxHealth();
+	const auto& pInv = memory.pInventory;
+	const auto& pHP = memory.pHealth;
+	const auto& pItems = pInv->GetInventory();
+	const int missingHP = SurvivorUtils::GetMissingHealth(pHP);;
+	const int curHP = pHP->GetHealth();
+	const int maxHP = pHP->GetMaxHealth();
 
 	if (missingHP == 0) return 0.0f;
 
 	float value{ static_cast<float>(missingHP) };
 
 	std::pair<int, int> bestMedKit{ 0, -1 }; // first: index, second: heal value
-	for (int index{}; index < items.Num(); index++) {
-		const auto& item = items[index];
+	for (int index{}; index < pItems.Num(); index++) {
+		const auto& pItem = pItems[index];
 		
-		if (!item) continue;
+		if (!pItem) continue;
 
-		switch (item->GetItemType()) {
+		switch (pItem->GetItemType()) {
 		case EItemType::Medkit:
 		{
-			const int healVal = item->GetValue();
+			const int healVal = pItem->GetValue();
 			if (healVal > bestMedKit.second) {
 				bestMedKit.first = index;
 				bestMedKit.second = healVal;
 
-				if (missingHP + healVal == maxHP) index = items.Num(); // artificial "break" since I'm in a switch case
+				if (missingHP + healVal == maxHP) index = pItems.Num(); // artificial "break" since I'm in a switch case
 			}
 			break;
 		}

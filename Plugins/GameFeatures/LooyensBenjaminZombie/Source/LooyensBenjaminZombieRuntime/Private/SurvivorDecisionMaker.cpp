@@ -87,6 +87,11 @@ void USurvivorDecisionMaker::TickComponent(float DeltaTime, ELevelTick TickType,
 
 	if (m_Actions.Num() <= 0) return; // No actions to loop through
 
+	// Potentially, I could split up the actions into different types:
+	// - "Thinking Actions", where it calculates options (such as best item, best zombie to attack, etc)
+	// - "Movement Actions", where it calculates and applies the steering/movement necessary
+	// - "Item Actions", where it uses the items that were decided (to attack or heal, etc)
+
 	if (m_PrevAction != -1) m_Actions[m_PrevAction]->LateExecute(m_Memory); // Logic after movement for previous action
 
 	constexpr int DEBUG_MESSAGE_OFFSET = 6;
