@@ -94,14 +94,9 @@ void ShootZombieAction::Execute(SurvivorMemory& memory)
 	auto& closeZombie = memory.zombies[m_ClosestZombieIndex];
 
 	const FVector& zombieLocation = closeZombie.ptr->GetActorLocation();
-	//const FRotator lookAtZombie = UKismetMathLibrary::FindLookAtRotation(pSurvivor->GetActorLocation(), zombieLocation);
-	//const FRotator lookAtZombie = UKismetMathLibrary::FindLookAtRotation(pSurvivor->GetActorLocation(), { zombieLocation.X, zombieLocation.Y, 0.0 });
-	//memory.pSurvivor->SetActorRotation(lookAtZombie);
-
-	const FVector zombieLocationXY = { zombieLocation.X, zombieLocation.Y, 0 };
-	//const FVector toZombie = pSurvivor->GetActorLocation() - zombieLocation;
 	const FVector toZombie = zombieLocation - pSurvivor->GetActorLocation();
-	pSurvivor->SetActorRotation(toZombie.ToOrientationRotator());
+	const FVector toZombieXY = { toZombie.X, toZombie.Y, 0 };
+	pSurvivor->SetActorRotation(toZombieXY.ToOrientationRotator());
 }
 
 void ShootZombieAction::LateExecute(SurvivorMemory& memory)
