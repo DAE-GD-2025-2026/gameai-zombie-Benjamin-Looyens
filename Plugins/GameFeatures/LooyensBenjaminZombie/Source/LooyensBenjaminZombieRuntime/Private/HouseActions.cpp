@@ -209,7 +209,7 @@ void LootHouseAction::Execute(SurvivorMemory& memory)
 
 		std::pair<int, double> closestPointIndex{ 0, DBL_MAX };
 		for (int index{}; index < path.Num(); index++) {
-			const double curDistance = FVector::Distance(path[index], survPos);
+			const double curDistance = FVector::DistSquared(path[index], survPos);
 			
 			if (curDistance < closestPointIndex.second) {
 				closestPointIndex.first = index;

@@ -24,7 +24,7 @@ float CollectItemAction::Evaluate(const SurvivorMemory& memory)
 
 	for (const auto& item : items) {
 		m_PickupableIndex++;
-		if (FVector::Distance(item.ptr->GetActorLocation(), memory.pSurvivor->GetActorLocation()) < pickupRange) {
+		if (FVector::DistSquared(item.ptr->GetActorLocation(), memory.pSurvivor->GetActorLocation()) < (pickupRange * pickupRange)) {
 			return 35.0f; // TODO : Put some thought into what value this should be
 		}
 	}
