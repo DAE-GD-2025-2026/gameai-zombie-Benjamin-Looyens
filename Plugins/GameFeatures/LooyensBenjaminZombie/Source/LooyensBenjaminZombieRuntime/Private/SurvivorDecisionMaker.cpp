@@ -101,7 +101,7 @@ void USurvivorDecisionMaker::TickComponent(float DeltaTime, ELevelTick TickType,
 	// Refresh House Explored Status
 	m_Memory.invState = SurvivorUtils::GetInventoryState(m_Memory.pInventory);
 
-	constexpr double REFRESH_HOUSE_EXPLORATION = 200.0;
+	constexpr double REFRESH_HOUSE_EXPLORATION = 100.0;
 	for (auto& house : m_Memory.houses) {
 		if (house.explored) house.timeSinceExplored += DeltaTime;
 		if (house.timeSinceExplored >= REFRESH_HOUSE_EXPLORATION) {
@@ -255,9 +255,12 @@ void USurvivorDecisionMaker::AddItemMemory(ABaseItem* pItem)
 		auto& itemMemory = (*pMemoryToAddTo)[index];
 
 		const auto& houseBounds = m_Memory.pSelectedHouse->ptr->GetBounds();
-		const FVector houseXY = { houseBounds.Extent.X / 2, houseBounds.Extent.Y / 2, 0.0 };
-		
-		if (FVector::DistSquared(m_Memory.pSurvivor->GetActorLocation(), itemMemory.ptr->GetActorLocation()) < houseXY.SquaredLength()) itemMemory.pContainingHouse = m_Memory.pSelectedHouse;
+		const auto& survivorPos = m_Memory.pSurvivor->GetActorLocation();
+		const auto& pickupRange = m_Memory.pInventory->GetPickupRange();
+
+		if (SurvivorUtils::IsWithinHouse(survivorPos, houseBounds) &&
+			FVector::DistSquared(survivorPos, pItem->GetActorLocation()) <= pickupRange * pickupRange) 
+			itemMemory.pContainingHouse = m_Memory.pSelectedHouse;
 	}
 }
 
