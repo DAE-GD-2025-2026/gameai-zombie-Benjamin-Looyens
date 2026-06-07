@@ -12,6 +12,11 @@ float CollectItemAction::Evaluate(const SurvivorMemory& memory)
 {
 	if (memory.items.Num() <= 0) return 0.0f; // No known items
 
+	//if (memory.items_medkits.Num() <= 0 &&
+	//	memory.items_weapons.Num() <= 0 &&
+	//	memory.items_food.Num() <= 0) 
+	//	return 0.0f;
+
 	m_PickupableIndex = -1;
 	
 	const auto& pInv = memory.pInventory;
@@ -26,7 +31,8 @@ float CollectItemAction::Evaluate(const SurvivorMemory& memory)
 
 	for (const auto& item : items) {
 		m_PickupableIndex++;
-		if (FVector::DistSquared(item.ptr->GetActorLocation(), memory.pSurvivor->GetActorLocation()) < (pickupRange * pickupRange)) {
+		if (FVector::DistSquared(item.ptr->GetActorLocation(), memory.pSurvivor->GetActorLocation()) < (pickupRange * pickupRange) && 
+			!SurvivorUtils::InventoryContains(pInv, item.ptr->GetItemType())) {
 			return 35.0f; // TODO : Put some thought into what value this should be
 		}
 	}

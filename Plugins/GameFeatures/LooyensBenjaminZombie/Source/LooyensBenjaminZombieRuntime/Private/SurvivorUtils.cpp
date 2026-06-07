@@ -30,6 +30,21 @@ namespace SurvivorUtils {
 		return 0;
 	}
 
+	bool InventoryContains(UInventoryComponent* pInventory, const EItemType& type)
+	{
+		if (!pInventory) return false;
+
+		const auto& items = pInventory->GetInventory();
+
+		for (const auto& item : items) {
+			if (!item) continue;
+
+			if (item->GetItemType() == type) return true;
+		}
+
+		return false;
+	}
+
 	int GetMissingHealth(UHealthComponent* pHealth)
 	{
 		return pHealth->GetMaxHealth() - pHealth->GetHealth();

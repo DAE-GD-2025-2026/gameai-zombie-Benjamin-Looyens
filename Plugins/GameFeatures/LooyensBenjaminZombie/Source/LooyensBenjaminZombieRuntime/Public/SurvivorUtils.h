@@ -6,10 +6,12 @@ class UStaminaComponent;
 class ASurvivorPawn;
 struct FHouseBounds;
 struct SurvivorMemory;
+enum class EItemType : uint8;
 
 namespace SurvivorUtils {
 	int GetNumberOfFreeSlots(UInventoryComponent* pInventory);
 	int GetNumberOfOwnedItems(UInventoryComponent* pInventory);
+	bool InventoryContains(UInventoryComponent* pInventory, const EItemType& type);
 
 	int GetMissingHealth(UHealthComponent* pHealth);
 	float GetHealthPercent(UHealthComponent* pHealth);
