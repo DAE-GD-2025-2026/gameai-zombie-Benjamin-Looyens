@@ -86,39 +86,28 @@ void CollectItemAction::Execute(SurvivorMemory& memory)
 
 	UE_LOG(LogTemp, Log, TEXT("Free slot found at [%i]"), freeSlot);
 
-	ItemMemory* pItem = nullptr;
-
 	switch (m_PickupableType) {
 	case EItemType::Food:
-		pItem = &(memory.items_food[m_PickupableIndex]);
-		break;
-	case EItemType::Medkit:
-		pItem = &(memory.items_medkits[m_PickupableIndex]);
-		break;
-	case EItemType::Shotgun:
-	case EItemType::Pistol:
-		pItem = &(memory.items_weapons[m_PickupableIndex]);
-		break;
-	}
-
-	pInv->GrabItem(freeSlot, pItem->ptr);
-}
-
-void CollectItemAction::LateExecute(SurvivorMemory& memory)
-{
-	switch (m_PickupableType) {
-	case EItemType::Food:
+		pInv->GrabItem(freeSlot, memory.items_food[m_PickupableIndex].ptr);
+		memory.items_food[m_PickupableIndex].pContainingHouse = nullptr;
 		memory.items_food.RemoveAt(m_PickupableIndex);
 		break;
 	case EItemType::Medkit:
+		pInv->GrabItem(freeSlot, memory.items_medkits[m_PickupableIndex].ptr);
+		memory.items_medkits[m_PickupableIndex].pContainingHouse = nullptr;
 		memory.items_medkits.RemoveAt(m_PickupableIndex);
 		break;
 	case EItemType::Shotgun:
 	case EItemType::Pistol:
+		pInv->GrabItem(freeSlot, memory.items_weapons[m_PickupableIndex].ptr);
+		memory.items_weapons[m_PickupableIndex].pContainingHouse = nullptr;
 		memory.items_weapons.RemoveAt(m_PickupableIndex);
 		break;
 	}
+}
 
+void CollectItemAction::LateExecute(SurvivorMemory& memory)
+{
 	m_PickupableIndex = -1;
 	m_PickupableType = EItemType::Garbage;
 }

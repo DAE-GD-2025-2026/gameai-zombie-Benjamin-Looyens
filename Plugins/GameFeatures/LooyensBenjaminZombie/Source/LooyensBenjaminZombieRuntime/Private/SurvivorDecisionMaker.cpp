@@ -137,6 +137,37 @@ void USurvivorDecisionMaker::TickComponent(float DeltaTime, ELevelTick TickType,
 		}
 	}
 
+	if (!m_Memory.invState.hasFood) {
+		for (const auto& food : m_Memory.items_food) {
+			if (food.pContainingHouse && food.pContainingHouse != m_Memory.pSelectedHouse) {
+				food.pContainingHouse->explored = false;
+				food.pContainingHouse->timeSinceExplored = 0.0;
+				UE_LOG(LogTemp, Log, TEXT("House Marked As Unexplored for Food"));
+				break;
+			}
+		}
+	}
+	if (!m_Memory.invState.hasMedkit) {
+		for (const auto& medkit : m_Memory.items_medkits) {
+			if (medkit.pContainingHouse && medkit.pContainingHouse != m_Memory.pSelectedHouse) {
+				medkit.pContainingHouse->explored = false;
+				medkit.pContainingHouse->timeSinceExplored = 0.0;
+				UE_LOG(LogTemp, Log, TEXT("House Marked As Unexplored for Medkit"));
+				break;
+			}
+		}
+	}
+	if (!m_Memory.invState.hasWeapon) {
+		for (const auto& weapon : m_Memory.items_weapons) {
+			if (weapon.pContainingHouse && weapon.pContainingHouse != m_Memory.pSelectedHouse) {
+				weapon.pContainingHouse->explored = false;
+				weapon.pContainingHouse->timeSinceExplored = 0.0;
+				UE_LOG(LogTemp, Log, TEXT("House Marked As Unexplored for Weapon"));
+				break;
+			}
+		}
+	}
+
 	// Calculate Current Memory
 	constexpr float s_MAXIMUM_DISTANCE_AWAY_SHOTGUN = 300.0f;
 	const auto zombies = SurvivorUtils::GetNumNearbyZombies(m_Memory, s_MAXIMUM_DISTANCE_AWAY_SHOTGUN);
@@ -252,6 +283,8 @@ void USurvivorDecisionMaker::AddItemMemory(ABaseItem* pItem)
 		}
 	}
 	
-	pMemoryToAddTo->Add({ pItem, GetWorld()->GetTimeSeconds() });
+	const auto index = pMemoryToAddTo->Add({ pItem, GetWorld()->GetTimeSeconds() });
+
+	if (m_Memory.pSelectedHouse && IsValid(m_Memory.pSelectedHouse->ptr)) (*pMemoryToAddTo)[index].pContainingHouse = m_Memory.pSelectedHouse;
 }
 

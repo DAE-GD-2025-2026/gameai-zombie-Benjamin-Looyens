@@ -60,6 +60,8 @@ struct ItemMemory
 
 	ABaseItem* ptr;
 	double lastSeen;
+	HouseMemory* pContainingHouse = nullptr;
+};
 
 struct InventoryState
 {

@@ -49,3 +49,14 @@ public:
 private:
 	int m_EatableIndex{ -1 };
 };
+
+class SearchForMissingItemAction : public ISurvivorUtilityAction
+{
+public:
+	virtual float Evaluate(const SurvivorMemory& memory) override;
+	virtual void Execute(SurvivorMemory& memory) override;
+	virtual void LateExecute(SurvivorMemory& memory) override;
+
+private:
+	int m_EatableIndex{ -1 };
+};
