@@ -44,10 +44,10 @@ private:
 	HouseMemory* m_pLatestHouse = nullptr;
 };
 
-class LootHouseAction : public ISurvivorUtilityAction
+class ExploreHouseAction : public ISurvivorUtilityAction
 {
 public:
-	LootHouseAction();
+	ExploreHouseAction();
 
 	virtual float Evaluate(const SurvivorMemory& memory) override;
 	virtual void Execute(SurvivorMemory& memory) override;

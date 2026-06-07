@@ -14,16 +14,16 @@ float SelectHouseAction::Evaluate(const SurvivorMemory& memory)
 
 	const auto& houses = memory.houses;
 
-	int numUnlooted = Algo::Accumulate(houses, 0,
+	int numUnexplored = Algo::Accumulate(houses, 0,
 		[](int accumulated, const HouseMemory& house) {
-			return accumulated + static_cast<int>(!(house.looted));
+			return accumulated + static_cast<int>(!(house.explored));
 		}
 	);
 
 	// TODO : Highly prioritize if dont have a weapon
 
 	// TODO : Take into account full inventory
-	return static_cast<float>(numUnlooted) * 10.0f; // The more houses that aren't looted, the higher the value
+	return static_cast<float>(numUnexplored) * 10.0f; // The more houses that aren't explored, the higher the value
 }
 
 void SelectHouseAction::Execute(SurvivorMemory& memory)
@@ -38,7 +38,7 @@ void SelectHouseAction::Execute(SurvivorMemory& memory)
 	double bestHouseDistance = FLT_MAX;
 
 	for (auto& house : memory.houses) {
-		if (house.looted) continue;
+		if (house.explored) continue;
 
 		const float distance = FVector::DistSquared(house.ptr->GetActorLocation(), memory.pSurvivor->GetActorLocation());
 
@@ -63,7 +63,7 @@ EnterHouseAction::EnterHouseAction()
 float EnterHouseAction::Evaluate(const SurvivorMemory& memory)
 {
 	// TODO : EXIT HOUSE WHEN FULL INVENTORY
-	// House is not marked as looted when attaining a full inventory
+	// House is not marked as explored when attaining a full inventory
 	// So will either wander or get stuck in the "enter house" state
 	
 	// Furthermore, later when inventory clears up the selecting house is messy
@@ -77,11 +77,14 @@ float EnterHouseAction::Evaluate(const SurvivorMemory& memory)
 
 	float value{};
 
-	const int numFreeSlots = SurvivorUtils::GetNumberOfFreeSlots(pInv);
+	//const int numFreeSlots = SurvivorUtils::GetNumberOfFreeSlots(pInv);
+	//
+	//value += static_cast<float>(numFreeSlots) * 2.0f;
+	//value += (1.0f - SurvivorUtils::GetHealthPercent(pHP)) * 5.0f;
+	//value += (1.0f - SurvivorUtils::GetStaminaPercent(pStam)) * 2.0f;
 
-	value += static_cast<float>(numFreeSlots) * 2.0f;
-	value += (1.0f - SurvivorUtils::GetHealthPercent(pHP)) * 5.0f;
-	value += (1.0f - SurvivorUtils::GetStaminaPercent(pStam)) * 2.0f;
+	// TEMP : Set value to 2.0f for testing
+	value = 2.0f;
 
 	// Stuff to modify value:
 	// If there are nearby houses
@@ -123,12 +126,12 @@ float ExitHouseAction::Evaluate(const SurvivorMemory& memory)
 	float value{};
 
 	// The longer we spend in the house, the more likely we want to leave
-	// However, we first want to make sure it is looted
+	// However, we first want to make sure it is explored
 	//value += memory.timeSpentInHouse * static_cast<float>(SurvivorUtils::IsSurvivorWithinHouse(memory.pSurvivor, memory.pSelectedHouse->ptr->GetBounds())) * 3.0f; 
-	//value += memory.timeSpentInHouse * static_cast<float>(memory.pSelectedHouse->looted); 
+	//value += memory.timeSpentInHouse * static_cast<float>(memory.pSelectedHouse->explored); 
 
-	if (memory.pSelectedHouse->looted) {
-		value += memory.timeSpentInHouse;
+	if (memory.pSelectedHouse->explored) {
+		//value += memory.timeSpentInHouse;
 		value += 16.0f; // TODO : Make this more dynamic
 	}
 
@@ -159,7 +162,8 @@ void ExitHouseAction::LateExecute(SurvivorMemory& memory)
 {
 	if (!SurvivorUtils::IsSurvivorWithinHouse(memory.pSurvivor, memory.pSelectedHouse->ptr->GetBounds())) {
 		memory.timeSpentInHouse = 0.0f;
-		memory.pSelectedHouse->looted = true;
+		memory.pSelectedHouse->explored = true;
+		memory.pSelectedHouse->lastExplored = memory.pSurvivor->GetWorld()->GetTimeSeconds();
 		memory.pSelectedHouse = nullptr;
 		m_pLatestHouse = nullptr;
 
@@ -168,14 +172,14 @@ void ExitHouseAction::LateExecute(SurvivorMemory& memory)
 }
 
 // LOOT ENTERED HOUSE 
-LootHouseAction::LootHouseAction()
+ExploreHouseAction::ExploreHouseAction()
 {
 	m_pBehavior = MakeUnique<PathFollow>();
 
 	UE_LOG(LogTemp, Log, TEXT("Loot House Action Created"));
 }
 
-float LootHouseAction::Evaluate(const SurvivorMemory& memory)
+float ExploreHouseAction::Evaluate(const SurvivorMemory& memory)
 {
 	if (!memory.pSelectedHouse) return 0.0f;
 	
@@ -184,14 +188,16 @@ float LootHouseAction::Evaluate(const SurvivorMemory& memory)
 	float value{};
 
 	if (SurvivorUtils::IsSurvivorWithinHouse(memory.pSurvivor, memory.pSelectedHouse->ptr->GetBounds())) {
-		const int numFreeSlots = SurvivorUtils::GetNumberOfFreeSlots(pInv);
-		value += static_cast<float>(numFreeSlots) * 5.0f;
+		//const int numFreeSlots = SurvivorUtils::GetNumberOfFreeSlots(pInv);
+		//value += static_cast<float>(numFreeSlots) * 5.0f;
+
+		return 3.0f; // TEMP : Return flat value for testing
 	}
 
 	return value;
 }
 
-void LootHouseAction::Execute(SurvivorMemory& memory)
+void ExploreHouseAction::Execute(SurvivorMemory& memory)
 {
 	const float deltaTime = memory.pSurvivor->GetWorld()->GetDeltaSeconds();
 
@@ -207,8 +213,6 @@ void LootHouseAction::Execute(SurvivorMemory& memory)
 
 		const FVector& survPos = memory.pSurvivor->GetActorLocation();
 
-		// TODO : Calculate closest point, and put that one first
-
 		const FVector bl = houseBox.Min;
 		const FVector tl = { houseBox.Min.X, houseBox.Max.Y, z };
 		const FVector tr = houseBox.Max;
@@ -222,6 +226,7 @@ void LootHouseAction::Execute(SurvivorMemory& memory)
 		path[2] = tr;
 		path[3] = br;
 
+		// Calculate closest point, putting that one first in path
 		std::pair<int, double> closestPointIndex{ 0, DBL_MAX };
 		for (int index{}; index < path.Num(); index++) {
 			const double curDistance = FVector::DistSquared(path[index], survPos);
@@ -250,7 +255,7 @@ void LootHouseAction::Execute(SurvivorMemory& memory)
 
 	//memory.timeSpentInHouse += deltaTime;
 	//if (memory.timeSpentInHouse >= SurvivorMemory::s_MAX_TIME_SPENT_IN_HOUSE) {
-	//	memory.pSelectedHouse->looted = true;
+	//	memory.pSelectedHouse->explored = true;
 	//	memory.timeSpentInHouse += 1.0f; // Ensure it is above enough
 	//}
 
@@ -260,9 +265,9 @@ void LootHouseAction::Execute(SurvivorMemory& memory)
 	// And I need to be able to check what items are in fron of the survivor
 }
 
-void LootHouseAction::LateExecute(SurvivorMemory& memory)
+void ExploreHouseAction::LateExecute(SurvivorMemory& memory)
 {
 	if (m_pBehavior->HasFinishedPath(*(memory.pSurvivor))) {
-		memory.pSelectedHouse->looted = true;
+		memory.pSelectedHouse->explored = true;
 	}
 }

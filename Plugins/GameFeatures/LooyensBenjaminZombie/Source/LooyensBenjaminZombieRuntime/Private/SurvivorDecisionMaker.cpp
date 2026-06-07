@@ -49,7 +49,7 @@ void USurvivorDecisionMaker::Init()
 	m_Actions.Add(MakeUnique<SelectHouseAction>());
 	m_Actions.Add(MakeUnique<EnterHouseAction>());
 	m_Actions.Add(MakeUnique<ExitHouseAction>());
-	m_Actions.Add(MakeUnique<LootHouseAction>());
+	m_Actions.Add(MakeUnique<ExploreHouseAction>());
 	m_Actions.Add(MakeUnique<CollectItemAction>());
 	m_Actions.Add(MakeUnique<HealAction>());
 	m_Actions.Add(MakeUnique<EatAction>());
