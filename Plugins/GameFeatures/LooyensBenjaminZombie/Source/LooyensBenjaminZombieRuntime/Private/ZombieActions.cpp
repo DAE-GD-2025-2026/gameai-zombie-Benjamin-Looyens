@@ -5,6 +5,7 @@
 #include <GameAI_Zombie/Common/InventoryComponent.h>
 #include <GameAI_Zombie/Common/StaminaComponent.h>
 #include <GameAI_Zombie/Zombies/BaseZombie.h>
+#include <GameAI_Zombie/Village/House/House.h>
 #include "SurvivorUtils.h"
 
 // SHOOT
@@ -24,9 +25,20 @@ float ShootZombieAction::Evaluate(const SurvivorMemory& memory)
 	// Find the amount of them within range
 	// If more than 2, prioritise shotgun
 
-	const int withinRange = memory.numNearbyZombies;
-
+	const int& withinRange = memory.numNearbyZombies;
 	if (withinRange == 0) return 0.0f;
+	if (memory.closestZombieIndex == -1) return 0.0f;
+
+	// Raycast to see if possible to hit zombie
+	FCollisionQueryParams rayParams;
+	rayParams.AddIgnoredActor(memory.pSurvivor);
+	FHitResult rayHit;
+	bool didHit = memory.pSurvivor->GetWorld()->LineTraceSingleByChannel(
+		rayHit,
+		memory.pSurvivor->GetActorLocation(), zombies[memory.closestZombieIndex].ptr->GetActorLocation(),
+		ECC_Visibility, rayParams);
+
+	if (didHit && Cast<AHouse>(rayHit.GetActor())) return 0.0f; // Hit a house, thus cant hit zombie
 
 	GEngine->AddOnScreenDebugMessage(20, 2.5f, FColor::Red, FString::Printf(TEXT("%i Zombies in range"), withinRange));
 
