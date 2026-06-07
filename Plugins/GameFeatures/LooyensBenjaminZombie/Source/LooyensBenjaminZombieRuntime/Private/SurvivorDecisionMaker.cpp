@@ -13,6 +13,7 @@
 #include "HouseActions.h"
 #include "ItemActions.h"
 #include "ZombieActions.h"
+#include "SurvivorUtils.h"
 
 // Sets default values for this component's properties
 USurvivorDecisionMaker::USurvivorDecisionMaker()
@@ -95,7 +96,8 @@ void USurvivorDecisionMaker::TickComponent(float DeltaTime, ELevelTick TickType,
 	// - "Movement Actions", where it calculates and applies the steering/movement necessary
 	// - "Item Actions", where it uses the items that were decided (to attack or heal, etc)
 
-	if (m_PrevAction != -1) m_Actions[m_PrevAction]->LateExecute(m_Memory); // Logic after movement for previous action
+	// Logic after movement for previous action
+	if (m_PrevAction != -1) m_Actions[m_PrevAction]->LateExecute(m_Memory); 
 
 	// Update Old Memory
 	const double curTime = GetWorld()->GetTimeSeconds();
@@ -104,20 +106,23 @@ void USurvivorDecisionMaker::TickComponent(float DeltaTime, ELevelTick TickType,
 		return curTime - purge.timeCreated >= PurgeMemory::s_PURGE_TIMER; // Purge Zone Should have expired
 		});
 
-	// TODO : Somehow clear zombies that die in purge zones?
 	m_Memory.zombies.RemoveAll([&](const ZombieMemory& zombie) {
-		//return !zombie.ptr; // Zombie == nullptr
-
 		if (!IsValid(zombie.ptr)) {
 			UE_LOG(LogTemp, Log, TEXT("Removed Zombie!"));
 			return true; // Zombie == nullptr
 		}
 
 		return false;
-		});
+	});
 	// TODO : Clear out items that havent been seen in a while?
 
+	// Calculate Current Memory
+	constexpr float s_MAXIMUM_DISTANCE_AWAY_SHOTGUN = 300.0f;
+	const auto zombies = SurvivorUtils::GetNumNearbyZombies(m_Memory, s_MAXIMUM_DISTANCE_AWAY_SHOTGUN);
+	m_Memory.numNearbyZombies = zombies.first;
+	if (zombies.second != -1) m_Memory.closestZombieIndex = zombies.second;
 
+	// Calculate Utility Scores
 	constexpr int DEBUG_MESSAGE_OFFSET = 6;
 	std::pair<int, float> bestAction{ 0, -50.0f };
 	for (size_t index{}; index < m_Actions.Num(); index++) {
@@ -132,6 +137,7 @@ void USurvivorDecisionMaker::TickComponent(float DeltaTime, ELevelTick TickType,
 		GEngine->AddOnScreenDebugMessage(DEBUG_MESSAGE_OFFSET + index, 2.5f, FColor::Cyan, FString::Printf(TEXT("[%i] Score: %f"), index, curValue));
 	}
 
+	// Execute Utility Actions
 	m_Actions[bestAction.first]->Execute(m_Memory);
 	m_PrevAction = bestAction.first;
 

@@ -24,23 +24,7 @@ float ShootZombieAction::Evaluate(const SurvivorMemory& memory)
 	// Find the amount of them within range
 	// If more than 2, prioritise shotgun
 
-	int withinRange{}; // I could probably just do an Accumulate here
-	double closestDist{ DBL_MAX };
-	for (int index{}; index < zombies.Num(); index++) {
-		const auto& zombie = zombies[index];
-		const double distance = FVector::DistSquared(zombie.ptr->GetActorLocation(), memory.pSurvivor->GetActorLocation());
-		
-		// TODO : Differentiate pistol & shotgun
-		if (distance <= (s_MAXIMUM_DISTANCE_AWAY_SHOTGUN * s_MAXIMUM_DISTANCE_AWAY_SHOTGUN)) {
-			// Within shooting range
-			withinRange++;
-
-			if (distance < closestDist) {
-				closestDist = distance;
-				m_ClosestZombieIndex = index;
-			}
-		}
-	}
+	const int withinRange = memory.numNearbyZombies;
 
 	if (withinRange == 0) return 0.0f;
 
@@ -75,13 +59,9 @@ float ShootZombieAction::Evaluate(const SurvivorMemory& memory)
 		}
 	}
 
-	if (m_BestWeaponIndex == -1) {
-		m_ClosestZombieIndex = -1;
-		return 0.0f;
-	}
+	if (m_BestWeaponIndex == -1) return 0.0f;
 
 	// Calculate value uhhhhh
-
 	// Raycast and see if it hits a wall, then dont
 
 	return 50.0f;
@@ -89,10 +69,10 @@ float ShootZombieAction::Evaluate(const SurvivorMemory& memory)
 
 void ShootZombieAction::Execute(SurvivorMemory& memory)
 {
-	if (m_BestWeaponIndex == -1 || m_ClosestZombieIndex == -1) return;
+	if (m_BestWeaponIndex == -1 || memory.closestZombieIndex == -1) return;
 
 	auto& pSurvivor = memory.pSurvivor;
-	auto& closeZombie = memory.zombies[m_ClosestZombieIndex];
+	auto& closeZombie = memory.zombies[memory.closestZombieIndex];
 
 	const FVector toZombie = closeZombie.ptr->GetActorLocation() - pSurvivor->GetActorLocation();
 	const FVector toZombieXY{ toZombie.X, toZombie.Y, 0 };
@@ -105,7 +85,7 @@ void ShootZombieAction::LateExecute(SurvivorMemory& memory)
 
 	auto& pInv = memory.pInventory;
 
-	UE_LOG(LogTemp, Log, TEXT("Tried to shoot zombie at memory index [%i] with item at index [%i]"), m_ClosestZombieIndex, m_BestWeaponIndex);
+	UE_LOG(LogTemp, Log, TEXT("Tried to shoot zombie at memory index [%i] with item at index [%i]"), memory.closestZombieIndex, m_BestWeaponIndex);
 
 	pInv->UseItem(m_BestWeaponIndex);
 
@@ -113,5 +93,6 @@ void ShootZombieAction::LateExecute(SurvivorMemory& memory)
 
 
 	m_BestWeaponIndex = -1;
-	m_ClosestZombieIndex = -1;
+	memory.closestZombieIndex = -1;
+}
 }

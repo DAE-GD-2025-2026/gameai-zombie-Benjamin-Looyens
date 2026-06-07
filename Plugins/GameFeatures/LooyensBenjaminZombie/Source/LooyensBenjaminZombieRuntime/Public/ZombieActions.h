@@ -12,7 +12,6 @@ public:
 
 private:
 	int m_BestWeaponIndex{ -1 };
-	int m_ClosestZombieIndex{ -1 };
 
 	// TODO : Figure out these values
 	static constexpr float s_MINIMUM_DISTANCE_AWAY = 100.0f; 

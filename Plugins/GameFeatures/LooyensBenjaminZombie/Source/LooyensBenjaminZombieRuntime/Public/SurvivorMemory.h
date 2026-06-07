@@ -82,10 +82,13 @@ struct SurvivorMemory
 	static constexpr float s_MAX_TIME_SPENT_IN_HOUSE = 9.0f;
 
 	TArray<ZombieMemory> zombies{};
+	int numNearbyZombies = 0;
+	int closestZombieIndex = -1;
+
 	TArray<PurgeMemory> purgeZones{};
 
 	TArray<ItemMemory> items{};
 
-	bool explorePathDirty = false;
 	TArray<FVector> exploredLocations{};
+	bool explorePathDirty = false;
 };
