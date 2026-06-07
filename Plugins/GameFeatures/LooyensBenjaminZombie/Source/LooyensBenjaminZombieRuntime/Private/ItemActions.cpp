@@ -10,34 +10,91 @@
 // PICKUP
 float CollectItemAction::Evaluate(const SurvivorMemory& memory)
 {
-	if (memory.items.Num() <= 0) return 0.0f; // No known items
+	//if (memory.items.Num() <= 0) return 0.0f; // No known items
+	//
+	//m_PickupableIndex = -1;
+	//
+	//const auto& pInv = memory.pInventory;
+	//const int freeSlots = SurvivorUtils::GetNumberOfFreeSlots(pInv);
+	//
+	//if (freeSlots <= 0) return 0.0f; // No free item slots (maybe I can do some logic to switch out items though)
+	//
+	//const auto& items = memory.items;
+	//const float pickupRange = pInv->GetPickupRange();
+	//
+	//// TODO : some logic on deciding if interested in the pickup
+	//
+	//for (const auto& item : items) {
+	//	m_PickupableIndex++;
+	//	if (FVector::DistSquared(item.ptr->GetActorLocation(), memory.pSurvivor->GetActorLocation()) < (pickupRange * pickupRange) && 
+	//		!SurvivorUtils::InventoryContains(pInv, item.ptr->GetItemType())) {
+	//		return 35.0f; // TODO : Put some thought into what value this should be
+	//	}
+	//}
+	//
+	//m_PickupableIndex = -1;
 
-	//if (memory.items_medkits.Num() <= 0 &&
-	//	memory.items_weapons.Num() <= 0 &&
-	//	memory.items_food.Num() <= 0) 
-	//	return 0.0f;
+	if (memory.items_medkits.Num() <= 0 &&
+		memory.items_weapons.Num() <= 0 &&
+		memory.items_food.Num() <= 0)
+		return 0.0f; // No known items
 
 	m_PickupableIndex = -1;
-	
+
 	const auto& pInv = memory.pInventory;
 	const int freeSlots = SurvivorUtils::GetNumberOfFreeSlots(pInv);
+	const float pickupRange = pInv->GetPickupRange();
 
 	if (freeSlots <= 0) return 0.0f; // No free item slots (maybe I can do some logic to switch out items though)
 
-	const auto& items = memory.items;
-	const float pickupRange = pInv->GetPickupRange();
+	m_PickupableIndex = -1;
+	if (!SurvivorUtils::InventoryContains(pInv, EItemType::Pistol) ||
+		!SurvivorUtils::InventoryContains(pInv, EItemType::Shotgun)) {
+		const auto& weapons = memory.items_weapons;
 
-	// TODO : some logic on deciding if interested in the pickup
+		for (const auto& weapon : weapons) {
+			m_PickupableIndex++;
 
-	for (const auto& item : items) {
-		m_PickupableIndex++;
-		if (FVector::DistSquared(item.ptr->GetActorLocation(), memory.pSurvivor->GetActorLocation()) < (pickupRange * pickupRange) && 
-			!SurvivorUtils::InventoryContains(pInv, item.ptr->GetItemType())) {
-			return 35.0f; // TODO : Put some thought into what value this should be
+			if (FVector::DistSquared(weapon.ptr->GetActorLocation(), memory.pSurvivor->GetActorLocation()) < (pickupRange * pickupRange) &&
+				!SurvivorUtils::InventoryContains(pInv, weapon.ptr->GetItemType())) {
+
+				m_PickupableType = weapon.ptr->GetItemType();
+				return 35.0f; // TODO : Put some thought into what value this should be
+			}
 		}
 	}
 
 	m_PickupableIndex = -1;
+	if (!SurvivorUtils::InventoryContains(pInv, EItemType::Medkit)) {
+		const auto& medkits = memory.items_medkits;
+
+		for (const auto& medkit : medkits) {
+			m_PickupableIndex++;
+
+			if (FVector::DistSquared(medkit.ptr->GetActorLocation(), memory.pSurvivor->GetActorLocation()) < (pickupRange * pickupRange) &&
+				!SurvivorUtils::InventoryContains(pInv, medkit.ptr->GetItemType())) {
+
+				m_PickupableType = EItemType::Medkit;
+				return 35.0f; // TODO : Put some thought into what value this should be
+			}
+		}
+	}
+
+	m_PickupableIndex = -1;
+	if (!SurvivorUtils::InventoryContains(pInv, EItemType::Medkit)) {
+		const auto& foodList = memory.items_food;
+
+		for (const auto& food : foodList) {
+			m_PickupableIndex++;
+
+			if (FVector::DistSquared(food.ptr->GetActorLocation(), memory.pSurvivor->GetActorLocation()) < (pickupRange * pickupRange) &&
+				!SurvivorUtils::InventoryContains(pInv, food.ptr->GetItemType())) {
+
+				m_PickupableType = EItemType::Food;
+				return 35.0f; // TODO : Put some thought into what value this should be
+			}
+		}
+	}
 
 	return 0.0f;
 }
@@ -46,9 +103,30 @@ void CollectItemAction::Execute(SurvivorMemory& memory)
 {
 	if (m_PickupableIndex == -1) return;
 
+	//const auto& pInv = memory.pInventory;
+	//const auto& ownedItems = pInv->GetInventory();
+	//
+	//int freeSlot{};
+	//for (const auto& pItem : ownedItems) {
+	//	if (pItem) freeSlot++;
+	//	else break;
+	//}
+	//
+	//UE_LOG(LogTemp, Log, TEXT("Free slot found at [%i]"), freeSlot);
+	//
+	//auto& item = memory.items[m_PickupableIndex]; // It has crashed here before, but only once and I was not able to reproduce it at all?
+	//
+	//switch (item.ptr->GetItemType()) {
+	//case EItemType::Garbage:
+	//	if (!item.ptr->Destroy()) UE_LOG(LogTemp, Log, TEXT("CANT DESTROY!"));
+	//	break;
+	//default:
+	//	pInv->GrabItem(freeSlot, item.ptr);
+	//}
+
 	const auto& pInv = memory.pInventory;
 	const auto& ownedItems = pInv->GetInventory();
-
+	
 	int freeSlot{};
 	for (const auto& pItem : ownedItems) {
 		if (pItem) freeSlot++;
@@ -57,24 +135,43 @@ void CollectItemAction::Execute(SurvivorMemory& memory)
 
 	UE_LOG(LogTemp, Log, TEXT("Free slot found at [%i]"), freeSlot);
 
-	auto& item = memory.items[m_PickupableIndex]; // It has crashed here before, but only once and I was not able to reproduce it at all?
+	ItemMemory* pItem = nullptr;
 
-	switch (item.ptr->GetItemType()) {
-	case EItemType::Garbage:
-		if (!item.ptr->Destroy()) UE_LOG(LogTemp, Log, TEXT("CANT DESTROY!"));
+	switch (m_PickupableType) {
+	case EItemType::Food:
+		pItem = &(memory.items_food[m_PickupableIndex]);
 		break;
-	default:
-		pInv->GrabItem(freeSlot, item.ptr);
+	case EItemType::Medkit:
+		pItem = &(memory.items_medkits[m_PickupableIndex]);
+		break;
+	case EItemType::Shotgun:
+	case EItemType::Pistol:
+		pItem = &(memory.items_weapons[m_PickupableIndex]);
+		break;
 	}
+
+	pInv->GrabItem(freeSlot, pItem->ptr);
 
 	// TODO : Change destorying Garbage to it's own action
 }
 
 void CollectItemAction::LateExecute(SurvivorMemory& memory)
 {
-	memory.items.RemoveAt(m_PickupableIndex);
+	switch (m_PickupableType) {
+	case EItemType::Food:
+		memory.items_food.RemoveAt(m_PickupableIndex);
+		break;
+	case EItemType::Medkit:
+		memory.items_medkits.RemoveAt(m_PickupableIndex);
+		break;
+	case EItemType::Shotgun:
+	case EItemType::Pistol:
+		memory.items_weapons.RemoveAt(m_PickupableIndex);
+		break;
+	}
 
 	m_PickupableIndex = -1;
+	m_PickupableType = EItemType::Garbage;
 }
 
 // HEAL

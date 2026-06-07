@@ -1,6 +1,7 @@
 #pragma once
 #include "SurvivorUtilityAction.h"
 #include "SteeringBehaviors.h"
+#include <GameAI_Zombie/Items/ItemType.h>
 
 struct ItemMemory;
 
@@ -13,6 +14,7 @@ public:
 
 private:
 	int m_PickupableIndex{ -1 };
+	EItemType m_PickupableType{ EItemType::Garbage };
 };
 
 class HealAction : public ISurvivorUtilityAction

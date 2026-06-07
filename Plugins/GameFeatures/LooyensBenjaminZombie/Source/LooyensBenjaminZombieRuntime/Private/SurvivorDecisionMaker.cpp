@@ -223,16 +223,41 @@ void USurvivorDecisionMaker::AddZombieMemory(ABaseZombie* pZombie)
 
 void USurvivorDecisionMaker::AddItemMemory(ABaseItem* pItem)
 {
-	auto& items = m_Memory.items;
-	for (auto& item : items) {
+	if (!IsValid(pItem)) return;
+
+	TArray<ItemMemory>* pMemoryToAddTo{ &(m_Memory.items_garbage) };
+	
+	switch (pItem->GetItemType()) {
+	case EItemType::Medkit:
+		pMemoryToAddTo = &(m_Memory.items_medkits);
+		break;
+	case EItemType::Food:
+		pMemoryToAddTo = &(m_Memory.items_food);
+		break;
+	case EItemType::Shotgun:
+	case EItemType::Pistol:
+		pMemoryToAddTo = &(m_Memory.items_weapons);
+		break;
+	}
+	
+	for (auto& item : *pMemoryToAddTo) {
 		if (item.ptr == pItem) {
 			item.lastSeen = GetWorld()->GetTimeSeconds();
-
+	
 			return; // Item already known
 		}
 	}
+	
+	pMemoryToAddTo->Add({ pItem, GetWorld()->GetTimeSeconds() });
 
-	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("New item added to memory index [%i]"), items.Num()));
-	items.Add({ pItem, GetWorld()->GetTimeSeconds() });
+	//for (auto& item : m_Memory.items) {
+	//	if (item.ptr == pItem) {
+	//		item.lastSeen = GetWorld()->GetTimeSeconds();
+	//
+	//		return; // Item already known
+	//	}
+	//}
+	//
+	//m_Memory.items.Add({ pItem, GetWorld()->GetTimeSeconds() });
 }
 

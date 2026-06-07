@@ -87,7 +87,11 @@ struct SurvivorMemory
 
 	TArray<PurgeMemory> purgeZones{};
 
-	TArray<ItemMemory> items{};
+	//TArray<ItemMemory> items{};
+	TArray<ItemMemory> items_weapons{};
+	TArray<ItemMemory> items_medkits{};
+	TArray<ItemMemory> items_food{};
+	TArray<ItemMemory> items_garbage{};
 
 	TArray<FVector> exploredLocations{};
 	bool explorePathDirty = false;
