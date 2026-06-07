@@ -12,8 +12,9 @@ public:
 
 private:
 	// TODO : Blend steering path follow & wander
-	TUniquePtr<Wander> m_pBehavior{};
-	TUniquePtr<PathFollow> m_pBehaviorPath{};
+	TUniquePtr<Wander> m_pWander{};
+	TUniquePtr<PathFollow> m_pPathFollow{};
+	TUniquePtr<BlendedSteering> m_pBehavior{};
 
 	static constexpr double s_WANDER_TARGET_MIN = 0.0;
 	static constexpr double s_WANDER_TARGET_MAX = 6000.0;

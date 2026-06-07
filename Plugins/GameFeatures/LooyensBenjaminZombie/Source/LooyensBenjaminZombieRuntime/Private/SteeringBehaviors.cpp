@@ -319,3 +319,53 @@ void PathFollow::GotoNextPathPoint()
 		pCurrentSteering = pSeek.Get();
 	}
 }
+
+// BLENDED
+BlendedSteering::BlendedSteering(const TArray<WeightedBehavior>& WeightedBehaviors)
+	:WeightedBehaviors(WeightedBehaviors)
+{}
+
+SteeringOutput BlendedSteering::CalculateSteering(float DeltaT, const ASurvivorPawn& Survivor)
+{
+	SteeringOutput steering{};
+
+	const float totalWeight = Algo::Accumulate(WeightedBehaviors, 0.0f,
+		[](float prev, const WeightedBehavior& behavior) { return prev + behavior.Weight; });
+	if (totalWeight <= 0.0f) return steering;
+
+	for (const auto& behavior : WeightedBehaviors) {
+		const float curWeight = (behavior.Weight / totalWeight);
+		const SteeringOutput curBehavior = behavior.pBehavior->CalculateSteering(DeltaT, Survivor);
+
+		steering.LinearVelocity += curWeight * curBehavior.LinearVelocity;
+		steering.AngularVelocity += curWeight * curBehavior.AngularVelocity;
+		steering.IsValid = steering.IsValid && curBehavior.IsValid;
+	}
+
+	steering.LinearVelocity.Normalize();
+	return steering;
+}
+
+void BlendedSteering::SetTargetAllBlends(const FTargetData& target)
+{
+	SetTarget(target);
+
+	for (auto& behavior : WeightedBehaviors) {
+		behavior.pBehavior->SetTarget(target);
+	}
+}
+
+float* BlendedSteering::GetWeight(ISteeringBehavior* const SteeringBehavior)
+{
+	auto it = Algo::FindByPredicate(WeightedBehaviors, 
+		[SteeringBehavior](const WeightedBehavior& Elem) {
+			return Elem.pBehavior == SteeringBehavior;
+		}
+	);
+
+	if (it) {
+		return &it->Weight;
+	}
+
+	return nullptr;
+}

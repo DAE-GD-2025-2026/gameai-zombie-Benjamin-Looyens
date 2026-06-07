@@ -148,3 +148,34 @@ private:
 
 	void GotoNextPathPoint();
 };
+
+class BlendedSteering final : public ISteeringBehavior
+{
+public:
+	struct WeightedBehavior
+	{
+		ISteeringBehavior* pBehavior = nullptr;
+		float Weight = 0.f;
+
+		WeightedBehavior(ISteeringBehavior* const pBehavior, float Weight) :
+			pBehavior(pBehavior),
+			Weight(Weight)
+		{
+		};
+	};
+
+	BlendedSteering(const TArray<WeightedBehavior>& WeightedBehaviors);
+
+	void AddBehaviour(const WeightedBehavior& WeightedBehavior) { WeightedBehaviors.Add(WeightedBehavior); }
+	virtual SteeringOutput CalculateSteering(float DeltaT, const ASurvivorPawn& Survivor) override;
+
+	void SetTargetAllBlends(const FTargetData& target);
+
+	float* GetWeight(ISteeringBehavior* const SteeringBehavior);
+
+	// returns a reference to the weighted behaviors, can be used to adjust weighting. Is not intended to alter the behaviors themselves.
+	TArray<WeightedBehavior>& GetWeightedBehaviorsRef() { return WeightedBehaviors; }
+
+private:
+	TArray<WeightedBehavior> WeightedBehaviors = {};
+};

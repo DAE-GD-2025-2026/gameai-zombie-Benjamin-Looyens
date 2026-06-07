@@ -4,8 +4,14 @@
 
 WanderAction::WanderAction()
 {
-	m_pBehavior = MakeUnique<Wander>();
-	m_pBehaviorPath = MakeUnique<PathFollow>();
+	m_pWander = MakeUnique<Wander>();
+	m_pPathFollow = MakeUnique<PathFollow>();
+
+	TArray<BlendedSteering::WeightedBehavior> behaviors{
+		BlendedSteering::WeightedBehavior{ m_pWander.Get(), 0.4f },
+		BlendedSteering::WeightedBehavior{ m_pPathFollow.Get(), 0.6f }
+	};
+	m_pBehavior = MakeUnique<BlendedSteering>(behaviors);
 
 	UE_LOG(LogTemp, Log, TEXT("Wander Action Created"));
 }
@@ -22,7 +28,7 @@ void WanderAction::Execute(SurvivorMemory& memory)
 	auto& pSurvivor = memory.pSurvivor;
 	const auto& pWorld = pSurvivor->GetWorld();
 
-	if (m_pBehaviorPath->HasFinishedPath(*(pSurvivor))) {
+	if (m_pPathFollow->HasFinishedPath(*(pSurvivor))) {
 		const FVector& survivorPos = pSurvivor->GetActorLocation();
 		
 		FVector influencedPos = GeneratePos();
@@ -66,22 +72,21 @@ void WanderAction::Execute(SurvivorMemory& memory)
 		influencedPos.Z = survivorPos.Z;
 		memory.exploredLocations.Add(influencedPos);
 		TArray<FVector> path = pSurvivor->CalculatePath(influencedPos);
-		m_pBehaviorPath->SetPath(path);
+		m_pPathFollow->SetPath(path);
 		memory.explorePathDirty = false;
 
 		UE_LOG(LogTemp, Log, TEXT("Calculated New Wander Point: [%f, %f, %f]"), influencedPos.X, influencedPos.Y, influencedPos.Z);
 		UE_LOG(LogTemp, Log, TEXT("Path to point has [%i] points in path"), path.Num());
-	} 
+	}
 	else if (memory.explorePathDirty) {
 		TArray<FVector> path = pSurvivor->CalculatePath(memory.exploredLocations.Last());
-		m_pBehaviorPath->SetPath(path);
+		m_pPathFollow->SetPath(path);
 		memory.explorePathDirty = false;
 
 		UE_LOG(LogTemp, Log, TEXT("Recalculated Wander Path"));
 	}
 
-	//const auto steering = m_pBehavior->CalculateSteering(pWorld->GetDeltaSeconds(), *(pSurvivor));
-	const auto steering = m_pBehaviorPath->CalculateSteering(pWorld->GetDeltaSeconds(), *(pSurvivor));
+	const auto steering = m_pBehavior->CalculateSteering(pWorld->GetDeltaSeconds(), *(pSurvivor));
 	ISteeringBehavior::ApplySteering(pSurvivor, steering);
 }
 
