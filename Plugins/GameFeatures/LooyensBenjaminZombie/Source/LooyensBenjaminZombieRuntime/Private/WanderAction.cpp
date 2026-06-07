@@ -90,21 +90,16 @@ void WanderAction::LateExecute(SurvivorMemory& memory)
 
 FVector WanderAction::GeneratePos() const
 {
-	// TODO : Maybe center this on Origin of the map rather than the survivor? (and thus make the ranges larger)
 	return FVector{} + FMath::VRand() * FMath::RandRange(s_WANDER_TARGET_MIN, s_WANDER_TARGET_MAX);
 }
 
 float WanderAction::CalculateWeight(const FVector& location, const SurvivorMemory& memory) const
 {
-	// Score = distance from nearest avoid point
 	float minimumDistance = FLT_MAX;
 
 	for (const auto& explored : memory.exploredLocations) {
 		minimumDistance = FMath::Min(minimumDistance, FVector::DistSquared(location, explored));
 	}
-
-	// Larger distance => larger weight
-	//float weight = FMath::Sqrt(minimumDistance);
 
 	return minimumDistance;
 }

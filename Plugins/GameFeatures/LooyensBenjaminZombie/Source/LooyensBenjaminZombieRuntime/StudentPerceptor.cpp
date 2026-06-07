@@ -63,7 +63,8 @@ void UStudentPerceptor::OnPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 		}
 	}
 	else {
-		// Mark the zombie as not seen somehow?
+		// This still doesnt detect the zombies
+		// Idk how to detect zombies based on taking damage
 		if (ABaseZombie* pZombie = Cast<ABaseZombie>(Actor)) {
 			m_pDecisionMaker->AddZombieMemory(pZombie);
 		}

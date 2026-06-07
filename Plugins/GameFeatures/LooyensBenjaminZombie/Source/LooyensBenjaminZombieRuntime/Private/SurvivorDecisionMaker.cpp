@@ -27,23 +27,11 @@ USurvivorDecisionMaker::USurvivorDecisionMaker()
 // HACK : Separate Init Function is weird but BeginPlay() would never be called
 void USurvivorDecisionMaker::Init()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Green, FString::Printf(TEXT("Added decision maker")));
-
 	// Get Survivor Components
 	m_Memory.pSurvivor = Cast<ASurvivorPawn>(GetOwner());
 	m_Memory.pInventory = GetOwner()->GetComponentByClass<UInventoryComponent>();
 	m_Memory.pHealth = GetOwner()->GetComponentByClass<UHealthComponent>();
 	m_Memory.pStamina = GetOwner()->GetComponentByClass<UStaminaComponent>();
-
-	if (m_Memory.pInventory) {
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, FString::Printf(TEXT("Got reference to inventory")));
-	}
-	if (m_Memory.pHealth) {
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, FString::Printf(TEXT("Got reference to health")));
-	}
-	if (m_Memory.pStamina) {
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, FString::Printf(TEXT("Got reference to stamina")));
-	}
 
 	// Create Utility Actions
 	m_Actions.Add(MakeUnique<WanderAction>());
@@ -153,7 +141,7 @@ void USurvivorDecisionMaker::AddHouseMemory(AHouse* pHouse)
 		if (house.ptr == pHouse) return; // House already known
 	}
 
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("New House added to memory index [%i]"), houses.Num()));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("New House added to memory index [%i]"), houses.Num()));
 	houses.Add({ pHouse, GetWorld()->GetTimeSeconds() });
 }
 
@@ -164,7 +152,7 @@ void USurvivorDecisionMaker::AddPurgeMemory(APurgeZone* pPurgeZone)
 		if (zone.ptr == pPurgeZone) return; // Purge zone already known
 	}
 
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("New Purge Zone added to memory index [%i]"), zones.Num()));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("New Purge Zone added to memory index [%i]"), zones.Num()));
 	zones.Add({ pPurgeZone, pPurgeZone->CreationTime });
 }
 
@@ -196,7 +184,7 @@ void USurvivorDecisionMaker::AddItemMemory(ABaseItem* pItem)
 		}
 	}
 
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("New item added to memory index [%i]"), items.Num()));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("New item added to memory index [%i]"), items.Num()));
 	items.Add({ pItem, GetWorld()->GetTimeSeconds() });
 }
 
