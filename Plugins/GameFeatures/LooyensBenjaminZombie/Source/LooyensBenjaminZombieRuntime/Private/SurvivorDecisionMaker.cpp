@@ -124,13 +124,22 @@ void USurvivorDecisionMaker::TickComponent(float DeltaTime, ELevelTick TickType,
 	});
 	// TODO : Clear out items that havent been seen in a while?
 
+	constexpr double REFRESH_HOUSE_EXPLORATION = 200.0;
+	for (auto& house : m_Memory.houses) {
+		if (house.explored) house.timeSinceExplored += DeltaTime;
+		if (house.timeSinceExplored >= REFRESH_HOUSE_EXPLORATION) {
+			house.explored = false;
+			house.timeSinceExplored = 0.0;
+		}
+	}
+
 	// Calculate Current Memory
 	constexpr float s_MAXIMUM_DISTANCE_AWAY_SHOTGUN = 300.0f;
 	const auto zombies = SurvivorUtils::GetNumNearbyZombies(m_Memory, s_MAXIMUM_DISTANCE_AWAY_SHOTGUN);
 	m_Memory.numNearbyZombies = zombies.first;
 	if (zombies.second != -1) m_Memory.closestZombieIndex = zombies.second;
 
-
+	// Execute Late Passive Before New Calculations
 	if (m_PrevPassive != -1) m_PassiveActions[m_PrevPassive]->LateExecute(m_Memory); // HACK : Order of this execution is real silly, but for the way I set it up this works
 
 	// Calculate Utility Scores

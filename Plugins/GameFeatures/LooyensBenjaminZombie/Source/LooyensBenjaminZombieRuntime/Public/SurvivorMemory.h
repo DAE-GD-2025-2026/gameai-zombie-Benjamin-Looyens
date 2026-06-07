@@ -20,7 +20,7 @@ struct HouseMemory
 	AHouse* ptr;
 	double lastSeen;
 	bool explored{ false };
-	double lastExplored{ }; // Alternatively, could store "time since explored", and only add the deltaTime to those with the explored bool as true
+	double timeSinceExplored{ }; // Alternatively, could store "time since explored", and only add the deltaTime to those with the explored bool as true
 };
 
 struct ZombieMemory

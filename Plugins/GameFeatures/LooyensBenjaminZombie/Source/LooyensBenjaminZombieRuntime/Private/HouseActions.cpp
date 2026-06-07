@@ -163,7 +163,7 @@ void ExitHouseAction::LateExecute(SurvivorMemory& memory)
 	if (!SurvivorUtils::IsSurvivorWithinHouse(memory.pSurvivor, memory.pSelectedHouse->ptr->GetBounds())) {
 		memory.timeSpentInHouse = 0.0f;
 		memory.pSelectedHouse->explored = true;
-		memory.pSelectedHouse->lastExplored = memory.pSurvivor->GetWorld()->GetTimeSeconds();
+		memory.pSelectedHouse->timeSinceExplored = 0.0;
 		memory.pSelectedHouse = nullptr;
 		m_pLatestHouse = nullptr;
 
