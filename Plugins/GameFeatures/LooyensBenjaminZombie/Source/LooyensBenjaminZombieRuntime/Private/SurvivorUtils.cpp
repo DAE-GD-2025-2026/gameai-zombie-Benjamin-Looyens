@@ -45,6 +45,34 @@ namespace SurvivorUtils {
 		return false;
 	}
 
+	InventoryState GetInventoryState(UInventoryComponent* pInventory)
+	{
+		InventoryState state{};
+
+		if (pInventory) {
+			const auto& pItems = pInventory->GetInventory();
+
+			for (const auto& pItem : pItems) {
+				if (!pItem) continue;
+
+				switch (pItem->GetItemType()) {
+				case EItemType::Medkit:
+					state.hasMedkit = true;
+					break;
+				case EItemType::Food:
+					state.hasFood = true;
+					break;
+				case EItemType::Shotgun:
+				case EItemType::Pistol:
+					state.hasWeapon = true;
+					break;
+				}
+			}
+		}
+
+		return state;
+	}
+
 	int GetMissingHealth(UHealthComponent* pHealth)
 	{
 		return pHealth->GetMaxHealth() - pHealth->GetHealth();
@@ -79,12 +107,10 @@ namespace SurvivorUtils {
 		};
 	}
 
-	bool IsSurvivorWithinHouse(ASurvivorPawn* pSurvivor, const FHouseBounds& houseBounds)
+	bool IsWithinHouse(const FVector& pos, const FHouseBounds& houseBounds)
 	{
-		if (!pSurvivor) return false;
-
 		const FBox houseBox = SurvivorUtils::HouseBoundsToBox(houseBounds);
-		return houseBox.IsInside(pSurvivor->GetActorLocation());
+		return houseBox.IsInside(pos);
 	}
 
 	std::pair<int, int> GetNumNearbyZombies(const SurvivorMemory& memory, float maxDistance)

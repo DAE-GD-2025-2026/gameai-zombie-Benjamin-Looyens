@@ -125,6 +125,9 @@ void USurvivorDecisionMaker::TickComponent(float DeltaTime, ELevelTick TickType,
 	});
 	// TODO : Clear out items that havent been seen in a while?
 
+	// Refresh House Explored Status
+	m_Memory.invState = SurvivorUtils::GetInventoryState(m_Memory.pInventory);
+
 	constexpr double REFRESH_HOUSE_EXPLORATION = 200.0;
 	for (auto& house : m_Memory.houses) {
 		if (house.explored) house.timeSinceExplored += DeltaTime;

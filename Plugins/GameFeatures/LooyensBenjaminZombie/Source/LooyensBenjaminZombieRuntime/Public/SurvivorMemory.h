@@ -60,6 +60,12 @@ struct ItemMemory
 
 	ABaseItem* ptr;
 	double lastSeen;
+
+struct InventoryState
+{
+	bool hasMedkit{};
+	bool hasWeapon{};
+	bool hasFood{};
 };
 
 struct SurvivorMemory
@@ -95,4 +101,6 @@ struct SurvivorMemory
 
 	TArray<FVector> exploredLocations{};
 	bool explorePathDirty = false;
+
+	InventoryState invState{};
 };

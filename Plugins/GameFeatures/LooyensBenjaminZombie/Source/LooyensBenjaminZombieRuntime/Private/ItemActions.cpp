@@ -24,15 +24,13 @@ float CollectItemAction::Evaluate(const SurvivorMemory& memory)
 	if (freeSlots <= 0) return 0.0f; // No free item slots (maybe I can do some logic to switch out items though)
 
 	m_PickupableIndex = -1;
-	if (!SurvivorUtils::InventoryContains(pInv, EItemType::Pistol) ||
-		!SurvivorUtils::InventoryContains(pInv, EItemType::Shotgun)) {
+	if (!memory.invState.hasWeapon) {
 		const auto& weapons = memory.items_weapons;
 
 		for (const auto& weapon : weapons) {
 			m_PickupableIndex++;
 
-			if (FVector::DistSquared(weapon.ptr->GetActorLocation(), memory.pSurvivor->GetActorLocation()) < (pickupRange * pickupRange) &&
-				!SurvivorUtils::InventoryContains(pInv, weapon.ptr->GetItemType())) {
+			if (FVector::DistSquared(weapon.ptr->GetActorLocation(), memory.pSurvivor->GetActorLocation()) < (pickupRange * pickupRange)) {
 
 				m_PickupableType = weapon.ptr->GetItemType();
 				return 35.0f; // TODO : Put some thought into what value this should be
@@ -41,14 +39,13 @@ float CollectItemAction::Evaluate(const SurvivorMemory& memory)
 	}
 
 	m_PickupableIndex = -1;
-	if (!SurvivorUtils::InventoryContains(pInv, EItemType::Medkit)) {
+	if (!memory.invState.hasMedkit) {
 		const auto& medkits = memory.items_medkits;
 
 		for (const auto& medkit : medkits) {
 			m_PickupableIndex++;
 
-			if (FVector::DistSquared(medkit.ptr->GetActorLocation(), memory.pSurvivor->GetActorLocation()) < (pickupRange * pickupRange) &&
-				!SurvivorUtils::InventoryContains(pInv, medkit.ptr->GetItemType())) {
+			if (FVector::DistSquared(medkit.ptr->GetActorLocation(), memory.pSurvivor->GetActorLocation()) < (pickupRange * pickupRange)) {
 
 				m_PickupableType = EItemType::Medkit;
 				return 35.0f; // TODO : Put some thought into what value this should be
@@ -57,14 +54,13 @@ float CollectItemAction::Evaluate(const SurvivorMemory& memory)
 	}
 
 	m_PickupableIndex = -1;
-	if (!SurvivorUtils::InventoryContains(pInv, EItemType::Food)) {
+	if (!memory.invState.hasFood) {
 		const auto& foodList = memory.items_food;
 
 		for (const auto& food : foodList) {
 			m_PickupableIndex++;
 
-			if (FVector::DistSquared(food.ptr->GetActorLocation(), memory.pSurvivor->GetActorLocation()) < (pickupRange * pickupRange) &&
-				!SurvivorUtils::InventoryContains(pInv, food.ptr->GetItemType())) {
+			if (FVector::DistSquared(food.ptr->GetActorLocation(), memory.pSurvivor->GetActorLocation()) < (pickupRange * pickupRange)) {
 
 				m_PickupableType = EItemType::Food;
 				return 35.0f; // TODO : Put some thought into what value this should be

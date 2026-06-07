@@ -160,7 +160,7 @@ void ExitHouseAction::Execute(SurvivorMemory& memory)
 
 void ExitHouseAction::LateExecute(SurvivorMemory& memory)
 {
-	if (!SurvivorUtils::IsSurvivorWithinHouse(memory.pSurvivor, memory.pSelectedHouse->ptr->GetBounds())) {
+	if (!SurvivorUtils::IsWithinHouse(memory.pSurvivor->GetActorLocation(), memory.pSelectedHouse->ptr->GetBounds())) {
 		memory.timeSpentInHouse = 0.0f;
 		memory.pSelectedHouse->explored = true;
 		memory.pSelectedHouse->timeSinceExplored = 0.0;
@@ -190,7 +190,7 @@ float ExploreHouseAction::Evaluate(const SurvivorMemory& memory)
 	
 	float value{};
 
-	if (SurvivorUtils::IsSurvivorWithinHouse(memory.pSurvivor, memory.pSelectedHouse->ptr->GetBounds())) {
+	if (SurvivorUtils::IsWithinHouse(memory.pSurvivor->GetActorLocation(), memory.pSelectedHouse->ptr->GetBounds())) {
 		//const int numFreeSlots = SurvivorUtils::GetNumberOfFreeSlots(pInv);
 		//value += static_cast<float>(numFreeSlots) * 5.0f;
 
