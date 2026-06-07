@@ -28,17 +28,16 @@ void WanderAction::Execute(SurvivorMemory& memory)
 		FVector influencedPos = GeneratePos();
 
 		if (!memory.exploredLocations.IsEmpty()) {
-			// TODO : Influence the position to not be in the same place
 			constexpr int NUM_IMPROVED_ATTEMPTS = 15;
 
 			TArray<FVector> possibleLocations{ influencedPos };
 			TArray<float> locationWeights{ CalculateWeight(influencedPos, memory) };
-			possibleLocations.Reserve(15);
-			locationWeights.Reserve(15);
+			possibleLocations.Reserve(NUM_IMPROVED_ATTEMPTS);
+			locationWeights.Reserve(NUM_IMPROVED_ATTEMPTS);
 
 			float totalWeight{ locationWeights[0] };
 
-			for (int index{}; index < possibleLocations.Num() - 1; index++) {
+			for (int index{}; index < NUM_IMPROVED_ATTEMPTS - 1; index++) {
 				const FVector altPos = GeneratePos();
 				const float weight = CalculateWeight(altPos, memory);
 
@@ -82,10 +81,6 @@ void WanderAction::Execute(SurvivorMemory& memory)
 	//const auto steering = m_pBehavior->CalculateSteering(pWorld->GetDeltaSeconds(), *(pSurvivor));
 	const auto steering = m_pBehaviorPath->CalculateSteering(pWorld->GetDeltaSeconds(), *(pSurvivor));
 	ISteeringBehavior::ApplySteering(pSurvivor, steering);
-}
-
-void WanderAction::LateExecute(SurvivorMemory& memory)
-{
 }
 
 FVector WanderAction::GeneratePos() const
