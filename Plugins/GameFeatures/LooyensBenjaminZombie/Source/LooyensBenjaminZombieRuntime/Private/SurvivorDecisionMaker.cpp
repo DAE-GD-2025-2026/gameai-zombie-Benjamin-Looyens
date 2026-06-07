@@ -47,13 +47,13 @@ void USurvivorDecisionMaker::Init()
 	m_Actions.Add(MakeUnique<EnterHouseAction>());
 	m_Actions.Add(MakeUnique<ExitHouseAction>());
 	m_Actions.Add(MakeUnique<ExploreHouseAction>());
-	m_Actions.Add(MakeUnique<CollectItemAction>());
 	m_Actions.Add(MakeUnique<ShootZombieAction>());
 
 	m_PassiveActions.Add(MakeUnique<NullAction>());
 	m_PassiveActions.Add(MakeUnique<HealAction>());
 	m_PassiveActions.Add(MakeUnique<EatAction>());
 	m_PassiveActions.Add(MakeUnique<RunAction>());
+	m_PassiveActions.Add(MakeUnique<CollectItemAction>());
 
 	// Goals & Actions to Add:
 	// - [GOAL] Search For Items
