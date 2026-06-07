@@ -57,7 +57,7 @@ float CollectItemAction::Evaluate(const SurvivorMemory& memory)
 	}
 
 	m_PickupableIndex = -1;
-	if (!SurvivorUtils::InventoryContains(pInv, EItemType::Medkit)) {
+	if (!SurvivorUtils::InventoryContains(pInv, EItemType::Food)) {
 		const auto& foodList = memory.items_food;
 
 		for (const auto& food : foodList) {
