@@ -285,6 +285,13 @@ void USurvivorDecisionMaker::AddItemMemory(ABaseItem* pItem)
 	
 	const auto index = pMemoryToAddTo->Add({ pItem, GetWorld()->GetTimeSeconds() });
 
-	if (m_Memory.pSelectedHouse && IsValid(m_Memory.pSelectedHouse->ptr)) (*pMemoryToAddTo)[index].pContainingHouse = m_Memory.pSelectedHouse;
+	if (m_Memory.pSelectedHouse && IsValid(m_Memory.pSelectedHouse->ptr)) {
+		auto& itemMemory = (*pMemoryToAddTo)[index];
+
+		const auto& houseBounds = m_Memory.pSelectedHouse->ptr->GetBounds();
+		const FVector houseXY = { houseBounds.Extent.X / 2, houseBounds.Extent.Y / 2, 0.0 };
+		
+		if (FVector::DistSquared(m_Memory.pSurvivor->GetActorLocation(), itemMemory.ptr->GetActorLocation()) < houseXY.SquaredLength()) itemMemory.pContainingHouse = m_Memory.pSelectedHouse;
+	}
 }
 
