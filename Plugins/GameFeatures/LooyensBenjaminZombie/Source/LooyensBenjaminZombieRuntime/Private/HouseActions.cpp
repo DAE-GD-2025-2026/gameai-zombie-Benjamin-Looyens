@@ -184,7 +184,8 @@ ExploreHouseAction::ExploreHouseAction()
 float ExploreHouseAction::Evaluate(const SurvivorMemory& memory)
 {
 	if (!memory.pSelectedHouse) return 0.0f;
-	
+	if (!memory.pSelectedHouse->ptr) return 0.0f; // Had an instance where it was nullptr, but cant say I know why
+
 	const auto& pInv = memory.pInventory;
 	
 	float value{};

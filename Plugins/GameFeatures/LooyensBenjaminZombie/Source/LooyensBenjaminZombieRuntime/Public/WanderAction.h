@@ -18,4 +18,7 @@ private:
 
 	static constexpr double s_WANDER_TARGET_MIN = 1800.0;
 	static constexpr double s_WANDER_TARGET_MAX = 2500.0;
+
+	FVector GeneratePos(const FVector& survivorPos) const;
+	float CalculateWeight(const FVector& location, const SurvivorMemory& memory) const;
 };
