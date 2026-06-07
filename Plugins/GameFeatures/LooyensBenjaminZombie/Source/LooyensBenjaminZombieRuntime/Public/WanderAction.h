@@ -16,9 +16,9 @@ private:
 	TUniquePtr<Wander> m_pBehavior{};
 	TUniquePtr<PathFollow> m_pBehaviorPath{};
 
-	static constexpr double s_WANDER_TARGET_MIN = 1800.0;
-	static constexpr double s_WANDER_TARGET_MAX = 2500.0;
+	static constexpr double s_WANDER_TARGET_MIN = 2000.0;
+	static constexpr double s_WANDER_TARGET_MAX = 6000.0;
 
-	FVector GeneratePos(const FVector& survivorPos) const;
+	FVector GeneratePos() const;
 	float CalculateWeight(const FVector& location, const SurvivorMemory& memory) const;
 };

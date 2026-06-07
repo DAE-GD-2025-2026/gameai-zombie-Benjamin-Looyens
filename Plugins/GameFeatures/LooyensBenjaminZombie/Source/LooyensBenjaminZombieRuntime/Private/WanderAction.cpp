@@ -25,7 +25,7 @@ void WanderAction::Execute(SurvivorMemory& memory)
 	if (m_pBehaviorPath->HasFinishedPath(*(pSurvivor))) {
 		const FVector& survivorPos = pSurvivor->GetActorLocation();
 		
-		FVector influencedPos = GeneratePos(survivorPos);
+		FVector influencedPos = GeneratePos();
 
 		if (!memory.exploredLocations.IsEmpty()) {
 			// TODO : Influence the position to not be in the same place
@@ -39,7 +39,7 @@ void WanderAction::Execute(SurvivorMemory& memory)
 			float totalWeight{ locationWeights[0] };
 
 			for (int index{}; index < possibleLocations.Num() - 1; index++) {
-				const FVector altPos = GeneratePos(survivorPos);
+				const FVector altPos = GeneratePos();
 				const float weight = CalculateWeight(altPos, memory);
 
 				possibleLocations.Add(altPos);
@@ -68,6 +68,8 @@ void WanderAction::Execute(SurvivorMemory& memory)
 		TArray<FVector> path = pSurvivor->CalculatePath(influencedPos);
 		m_pBehaviorPath->SetPath(path);
 		memory.explorePathDirty = false;
+
+		UE_LOG(LogTemp, Log, TEXT("Calculated New Wander Point"));
 	} 
 	else if (memory.explorePathDirty) {
 		TArray<FVector> path = pSurvivor->CalculatePath(memory.exploredLocations.Last());
@@ -86,10 +88,10 @@ void WanderAction::LateExecute(SurvivorMemory& memory)
 {
 }
 
-FVector WanderAction::GeneratePos(const FVector& survivorPos) const
+FVector WanderAction::GeneratePos() const
 {
 	// TODO : Maybe center this on Origin of the map rather than the survivor? (and thus make the ranges larger)
-	return survivorPos + FMath::VRand() * FMath::RandRange(s_WANDER_TARGET_MIN, s_WANDER_TARGET_MAX);
+	return FVector{} + FMath::VRand() * FMath::RandRange(s_WANDER_TARGET_MIN, s_WANDER_TARGET_MAX);
 }
 
 float WanderAction::CalculateWeight(const FVector& location, const SurvivorMemory& memory) const
