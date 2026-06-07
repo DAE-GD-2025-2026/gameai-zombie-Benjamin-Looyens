@@ -85,4 +85,7 @@ struct SurvivorMemory
 	TArray<PurgeMemory> purgeZones{};
 
 	TArray<ItemMemory> items{};
+
+	bool explorePathDirty = false;
+	TArray<FVector> exploredLocations{};
 };

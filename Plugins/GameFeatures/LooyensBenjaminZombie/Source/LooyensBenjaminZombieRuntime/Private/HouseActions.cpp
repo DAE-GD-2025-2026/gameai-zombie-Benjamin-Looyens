@@ -168,6 +168,8 @@ void ExitHouseAction::LateExecute(SurvivorMemory& memory)
 		m_pLatestHouse = nullptr;
 
 		UE_LOG(LogTemp, Log, TEXT("Exited House"));
+
+		memory.explorePathDirty = true; // Maybe just set this in the enter house execute (when calc path)
 	}
 }
 

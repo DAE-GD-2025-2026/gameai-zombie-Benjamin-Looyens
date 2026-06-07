@@ -9,7 +9,13 @@ public:
 
 	virtual float Evaluate(const SurvivorMemory& memory) override;
 	virtual void Execute(SurvivorMemory& memory) override;
+	virtual void LateExecute(SurvivorMemory& memory) override;
 
 private:
+	// TODO : Blend steering path follow & wander
 	TUniquePtr<Wander> m_pBehavior{};
+	TUniquePtr<PathFollow> m_pBehaviorPath{};
+
+	static constexpr double s_WANDER_TARGET_MIN = 1800.0;
+	static constexpr double s_WANDER_TARGET_MAX = 2500.0;
 };

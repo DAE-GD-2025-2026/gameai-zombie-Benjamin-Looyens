@@ -289,6 +289,7 @@ SteeringOutput PathFollow::CalculateSteering(float DeltaTime, const ASurvivorPaw
 
 bool PathFollow::HasFinishedPath(const ASurvivorPawn& Survivor) const
 {
+	if (pathArr.IsEmpty()) return true;
 	if (currentPathIndex >= static_cast<int>(pathArr.Num())) {
 		const float agentRadius = Survivor.GetSimpleCollisionRadius(); // Not sure if GetSimpleCollisionRadius is equivalent to GetCapsuleRadius
 		const FVector2D ToPathPoint{ pathArr.Last() - SteeringPawnAccess::GetPawnPosition(Survivor)};
