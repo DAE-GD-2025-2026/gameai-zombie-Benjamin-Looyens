@@ -7,6 +7,7 @@
 #include <GameAI_Zombie/Common/InventoryComponent.h>
 #include <GameAI_Zombie/Common/StaminaComponent.h>
 #include <GameAI_Zombie/Zombies/BaseZombie.h>
+#include <GameAI_Zombie/Village/House/House.h>
 #include <GameAI_Zombie/PurgeZones/PurgeZone.h>
 
 #include "WanderAction.h"
@@ -108,6 +109,15 @@ void USurvivorDecisionMaker::TickComponent(float DeltaTime, ELevelTick TickType,
 		if (!IsValid(zombie.ptr)) {
 			UE_LOG(LogTemp, Log, TEXT("Removed Zombie!"));
 			return true; // Zombie == nullptr
+		}
+
+		return false;
+	});
+
+	m_Memory.houses.RemoveAll([&](const HouseMemory& house) {
+		if (!IsValid(house.ptr)) {
+			UE_LOG(LogTemp, Log, TEXT("Removed House!"));
+			return true; // house == nullptr (somehow)
 		}
 
 		return false;
