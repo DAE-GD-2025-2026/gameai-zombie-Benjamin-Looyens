@@ -24,7 +24,7 @@ float CollectItemAction::Evaluate(const SurvivorMemory& memory)
 	if (freeSlots <= 0) return 0.0f; // No free item slots (maybe I can do some logic to switch out items though)
 
 	m_PickupableIndex = -1;
-	if (!memory.invState.hasWeapon || freeSlots > 2) {
+	if (!memory.invState.hasWeapon || freeSlots > 1) {
 		const auto& weapons = memory.items_weapons;
 
 		for (const auto& weapon : weapons) {
@@ -39,7 +39,7 @@ float CollectItemAction::Evaluate(const SurvivorMemory& memory)
 	}
 
 	m_PickupableIndex = -1;
-	if (!memory.invState.hasMedkit || freeSlots > 2) {
+	if (!memory.invState.hasMedkit || freeSlots > 1) {
 		const auto& medkits = memory.items_medkits;
 
 		for (const auto& medkit : medkits) {
@@ -54,7 +54,7 @@ float CollectItemAction::Evaluate(const SurvivorMemory& memory)
 	}
 
 	m_PickupableIndex = -1;
-	if (!memory.invState.hasFood || freeSlots > 2) {
+	if (!memory.invState.hasFood || freeSlots > 1) {
 		const auto& foodList = memory.items_food;
 
 		for (const auto& food : foodList) {
