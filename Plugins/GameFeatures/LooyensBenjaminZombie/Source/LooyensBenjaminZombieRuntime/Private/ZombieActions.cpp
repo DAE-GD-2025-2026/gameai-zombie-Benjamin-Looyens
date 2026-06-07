@@ -95,4 +95,26 @@ void ShootZombieAction::LateExecute(SurvivorMemory& memory)
 	m_BestWeaponIndex = -1;
 	memory.closestZombieIndex = -1;
 }
+
+// RUN
+float RunAction::Evaluate(const SurvivorMemory& memory)
+{
+	if (memory.numNearbyZombies > 0) return 5.0f;
+
+	return 0.0f;
+}
+
+void RunAction::Execute(SurvivorMemory& memory)
+{
+	if (!memory.pSurvivor->IsRunning()) UE_LOG(LogTemp, Log, TEXT("Started running!"));
+
+	memory.pSurvivor->StartRunning();
+}
+
+void RunAction::LateExecute(SurvivorMemory& memory)
+{
+	if (memory.numNearbyZombies <= 0) {
+		UE_LOG(LogTemp, Log, TEXT("Stopped running!"));
+		memory.pSurvivor->StopRunning();
+	}
 }

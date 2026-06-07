@@ -18,3 +18,11 @@ private:
 	static constexpr float s_MAXIMUM_DISTANCE_AWAY_PISTOL = 600.0f; 
 	static constexpr float s_MAXIMUM_DISTANCE_AWAY_SHOTGUN = 300.0f; 
 };
+
+class RunAction : public ISurvivorUtilityAction
+{
+public:
+	virtual float Evaluate(const SurvivorMemory& memory) override;
+	virtual void Execute(SurvivorMemory& memory) override;
+	virtual void LateExecute(SurvivorMemory& memory) override;
+};

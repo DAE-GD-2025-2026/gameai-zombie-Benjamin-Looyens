@@ -15,6 +15,13 @@
 #include "ZombieActions.h"
 #include "SurvivorUtils.h"
 
+// Null Action for Passives
+class NullAction final : public ISurvivorUtilityAction
+{
+	virtual float Evaluate(const SurvivorMemory& memory) override { return 1.0f; };
+	virtual void Execute(SurvivorMemory& memory) override {};
+};
+
 // Sets default values for this component's properties
 USurvivorDecisionMaker::USurvivorDecisionMaker()
 {
@@ -43,6 +50,9 @@ void USurvivorDecisionMaker::Init()
 	m_Actions.Add(MakeUnique<HealAction>());
 	m_Actions.Add(MakeUnique<EatAction>());
 	m_Actions.Add(MakeUnique<ShootZombieAction>());
+
+	m_PassiveActions.Add(MakeUnique<NullAction>());
+	m_PassiveActions.Add(MakeUnique<RunAction>());
 
 	// Goals & Actions to Add:
 	// - [GOAL] Search For Items
@@ -110,6 +120,9 @@ void USurvivorDecisionMaker::TickComponent(float DeltaTime, ELevelTick TickType,
 	m_Memory.numNearbyZombies = zombies.first;
 	if (zombies.second != -1) m_Memory.closestZombieIndex = zombies.second;
 
+
+	if (m_PrevPassive != -1) m_PassiveActions[m_PrevPassive]->LateExecute(m_Memory); // HACK : Order of this execution is real silly, but for the way I set it up this works
+
 	// Calculate Utility Scores
 	constexpr int DEBUG_MESSAGE_OFFSET = 6;
 	std::pair<int, float> bestAction{ 0, -50.0f };
@@ -125,7 +138,23 @@ void USurvivorDecisionMaker::TickComponent(float DeltaTime, ELevelTick TickType,
 		GEngine->AddOnScreenDebugMessage(DEBUG_MESSAGE_OFFSET + index, 2.5f, FColor::Cyan, FString::Printf(TEXT("[%i] Score: %f"), index, curValue));
 	}
 
+	std::pair<int, float> bestPassive{ 0, -50.0f };
+	for (size_t index{}; index < m_PassiveActions.Num(); index++) {
+		const auto& pCurAction = m_PassiveActions[index];
+		const float curValue = pCurAction->Evaluate(m_Memory);
+
+		if (curValue > bestPassive.second) {
+			bestPassive.first = index;
+			bestPassive.second = curValue;
+		}
+
+		GEngine->AddOnScreenDebugMessage(static_cast<int>(m_Actions.Num()) + DEBUG_MESSAGE_OFFSET + index, 2.5f, FColor::Blue, FString::Printf(TEXT("[%i] Score: %f"), index, curValue));
+	}
+
 	// Execute Utility Actions
+	m_PassiveActions[bestPassive.first]->Execute(m_Memory);
+	m_PrevPassive = bestPassive.first;
+
 	m_Actions[bestAction.first]->Execute(m_Memory);
 	m_PrevAction = bestAction.first;
 

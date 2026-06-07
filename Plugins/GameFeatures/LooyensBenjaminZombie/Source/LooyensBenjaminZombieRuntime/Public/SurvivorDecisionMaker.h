@@ -38,4 +38,6 @@ private:
 
 	TArray<TUniquePtr<ISurvivorUtilityAction>> m_Actions{};
 	int m_PrevAction = -1;
+	TArray<TUniquePtr<ISurvivorUtilityAction>> m_PassiveActions{};
+	int m_PrevPassive = -1;
 };
