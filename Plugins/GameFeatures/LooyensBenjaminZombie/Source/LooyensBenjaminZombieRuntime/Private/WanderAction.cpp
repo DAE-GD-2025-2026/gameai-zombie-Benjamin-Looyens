@@ -63,12 +63,14 @@ void WanderAction::Execute(SurvivorMemory& memory)
 			if (needToChoose) influencedPos = possibleLocations.Last();
 		}
 
+		influencedPos.Z = survivorPos.Z;
 		memory.exploredLocations.Add(influencedPos);
 		TArray<FVector> path = pSurvivor->CalculatePath(influencedPos);
 		m_pBehaviorPath->SetPath(path);
 		memory.explorePathDirty = false;
 
-		UE_LOG(LogTemp, Log, TEXT("Calculated New Wander Point"));
+		UE_LOG(LogTemp, Log, TEXT("Calculated New Wander Point: [%f, %f, %f]"), influencedPos.X, influencedPos.Y, influencedPos.Z);
+		UE_LOG(LogTemp, Log, TEXT("Path to point has [%i] points in path"), path.Num());
 	} 
 	else if (memory.explorePathDirty) {
 		TArray<FVector> path = pSurvivor->CalculatePath(memory.exploredLocations.Last());
