@@ -249,15 +249,5 @@ void USurvivorDecisionMaker::AddItemMemory(ABaseItem* pItem)
 	}
 	
 	pMemoryToAddTo->Add({ pItem, GetWorld()->GetTimeSeconds() });
-
-	//for (auto& item : m_Memory.items) {
-	//	if (item.ptr == pItem) {
-	//		item.lastSeen = GetWorld()->GetTimeSeconds();
-	//
-	//		return; // Item already known
-	//	}
-	//}
-	//
-	//m_Memory.items.Add({ pItem, GetWorld()->GetTimeSeconds() });
 }
 

@@ -10,30 +10,6 @@
 // PICKUP
 float CollectItemAction::Evaluate(const SurvivorMemory& memory)
 {
-	//if (memory.items.Num() <= 0) return 0.0f; // No known items
-	//
-	//m_PickupableIndex = -1;
-	//
-	//const auto& pInv = memory.pInventory;
-	//const int freeSlots = SurvivorUtils::GetNumberOfFreeSlots(pInv);
-	//
-	//if (freeSlots <= 0) return 0.0f; // No free item slots (maybe I can do some logic to switch out items though)
-	//
-	//const auto& items = memory.items;
-	//const float pickupRange = pInv->GetPickupRange();
-	//
-	//// TODO : some logic on deciding if interested in the pickup
-	//
-	//for (const auto& item : items) {
-	//	m_PickupableIndex++;
-	//	if (FVector::DistSquared(item.ptr->GetActorLocation(), memory.pSurvivor->GetActorLocation()) < (pickupRange * pickupRange) && 
-	//		!SurvivorUtils::InventoryContains(pInv, item.ptr->GetItemType())) {
-	//		return 35.0f; // TODO : Put some thought into what value this should be
-	//	}
-	//}
-	//
-	//m_PickupableIndex = -1;
-
 	if (memory.items_medkits.Num() <= 0 &&
 		memory.items_weapons.Num() <= 0 &&
 		memory.items_food.Num() <= 0)
@@ -102,27 +78,6 @@ float CollectItemAction::Evaluate(const SurvivorMemory& memory)
 void CollectItemAction::Execute(SurvivorMemory& memory)
 {
 	if (m_PickupableIndex == -1) return;
-
-	//const auto& pInv = memory.pInventory;
-	//const auto& ownedItems = pInv->GetInventory();
-	//
-	//int freeSlot{};
-	//for (const auto& pItem : ownedItems) {
-	//	if (pItem) freeSlot++;
-	//	else break;
-	//}
-	//
-	//UE_LOG(LogTemp, Log, TEXT("Free slot found at [%i]"), freeSlot);
-	//
-	//auto& item = memory.items[m_PickupableIndex]; // It has crashed here before, but only once and I was not able to reproduce it at all?
-	//
-	//switch (item.ptr->GetItemType()) {
-	//case EItemType::Garbage:
-	//	if (!item.ptr->Destroy()) UE_LOG(LogTemp, Log, TEXT("CANT DESTROY!"));
-	//	break;
-	//default:
-	//	pInv->GrabItem(freeSlot, item.ptr);
-	//}
 
 	const auto& pInv = memory.pInventory;
 	const auto& ownedItems = pInv->GetInventory();
