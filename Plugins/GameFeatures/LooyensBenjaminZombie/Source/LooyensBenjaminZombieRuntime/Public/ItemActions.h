@@ -17,6 +17,17 @@ private:
 	EItemType m_PickupableType{ EItemType::Garbage };
 };
 
+class DestroyGarbageAction : public ISurvivorUtilityAction
+{
+public:
+	virtual float Evaluate(const SurvivorMemory& memory) override;
+	virtual void Execute(SurvivorMemory& memory) override;
+	virtual void LateExecute(SurvivorMemory& memory) override;
+
+private:
+	int m_DestroyableIndex{ -1 };
+};
+
 class HealAction : public ISurvivorUtilityAction
 {
 public:

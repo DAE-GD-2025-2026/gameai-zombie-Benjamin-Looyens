@@ -106,8 +106,6 @@ void CollectItemAction::Execute(SurvivorMemory& memory)
 	}
 
 	pInv->GrabItem(freeSlot, pItem->ptr);
-
-	// TODO : Change destorying Garbage to it's own action
 }
 
 void CollectItemAction::LateExecute(SurvivorMemory& memory)
@@ -127,6 +125,37 @@ void CollectItemAction::LateExecute(SurvivorMemory& memory)
 
 	m_PickupableIndex = -1;
 	m_PickupableType = EItemType::Garbage;
+}
+
+// DESTROY
+float DestroyGarbageAction::Evaluate(const SurvivorMemory& memory)
+{
+	const float pickupRange = memory.pInventory->GetPickupRange();
+	const auto& garbages = memory.items_garbage;
+
+	m_DestroyableIndex = -1;
+
+	for (const auto& garbage : garbages) {
+		m_DestroyableIndex++;
+
+		if (FVector::DistSquared(garbage.ptr->GetActorLocation(), memory.pSurvivor->GetActorLocation()) < (pickupRange * pickupRange)) {
+			return 36.0f; // TODO : Put some thought into this value
+		}
+	}
+
+	return 0.0f;
+}
+
+void DestroyGarbageAction::Execute(SurvivorMemory& memory)
+{
+	auto& item = memory.items_garbage[m_DestroyableIndex];
+	if (!item.ptr->Destroy()) UE_LOG(LogTemp, Log, TEXT("CANT DESTROY!"));
+	memory.items_garbage.RemoveAt(m_DestroyableIndex);
+}
+
+void DestroyGarbageAction::LateExecute(SurvivorMemory& memory)
+{
+	m_DestroyableIndex = -1;
 }
 
 // HEAL

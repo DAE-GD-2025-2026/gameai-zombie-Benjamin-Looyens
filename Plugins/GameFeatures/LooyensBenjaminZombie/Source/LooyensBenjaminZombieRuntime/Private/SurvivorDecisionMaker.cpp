@@ -54,6 +54,7 @@ void USurvivorDecisionMaker::Init()
 	m_PassiveActions.Add(MakeUnique<EatAction>());
 	m_PassiveActions.Add(MakeUnique<RunAction>());
 	m_PassiveActions.Add(MakeUnique<CollectItemAction>());
+	m_PassiveActions.Add(MakeUnique<DestroyGarbageAction>());
 
 	// Goals & Actions to Add:
 	// - [GOAL] Search For Items
