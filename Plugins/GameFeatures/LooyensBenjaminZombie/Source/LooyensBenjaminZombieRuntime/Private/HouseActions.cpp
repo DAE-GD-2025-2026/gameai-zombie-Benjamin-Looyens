@@ -20,20 +20,11 @@ float SelectHouseAction::Evaluate(const SurvivorMemory& memory)
 		}
 	);
 
-	// TODO : Highly prioritize if dont have a weapon
-
-	// TODO : Take into account full inventory
 	return static_cast<float>(numUnexplored) * 10.0f; // The more houses that aren't explored, the higher the value
 }
 
 void SelectHouseAction::Execute(SurvivorMemory& memory)
 {
-	// TODO : Find best fitting house
-	// Factors:
-	// - Distance
-	// - Time last seen
-	// - Safety (if I somehow store that??)
-
 	HouseMemory* pBestHouse = nullptr;
 	double bestHouseDistance = FLT_MAX;
 
@@ -62,13 +53,6 @@ EnterHouseAction::EnterHouseAction()
 
 float EnterHouseAction::Evaluate(const SurvivorMemory& memory)
 {
-	// TODO : EXIT HOUSE WHEN FULL INVENTORY
-	// House is not marked as explored when attaining a full inventory
-	// So will either wander or get stuck in the "enter house" state
-	
-	// Furthermore, later when inventory clears up the selecting house is messy
-
-
 	if (!memory.pSelectedHouse) return 0.0f; // no unlooted house within memory
 
 	const auto& pInv = memory.pInventory;
@@ -77,20 +61,8 @@ float EnterHouseAction::Evaluate(const SurvivorMemory& memory)
 
 	float value{};
 
-	//const int numFreeSlots = SurvivorUtils::GetNumberOfFreeSlots(pInv);
-	//
-	//value += static_cast<float>(numFreeSlots) * 2.0f;
-	//value += (1.0f - SurvivorUtils::GetHealthPercent(pHP)) * 5.0f;
-	//value += (1.0f - SurvivorUtils::GetStaminaPercent(pStam)) * 2.0f;
-
 	// TEMP : Set value to 2.0f for testing
 	value = 2.0f;
-
-	// Stuff to modify value:
-	// If there are nearby houses
-	// How full inventory is
-	// HP / Stamina state
-	// If being chased?
 
 	return value;
 }
@@ -124,11 +96,6 @@ float ExitHouseAction::Evaluate(const SurvivorMemory& memory)
 	if (!memory.pSelectedHouse) return 0.0f;
 
 	float value{};
-
-	// The longer we spend in the house, the more likely we want to leave
-	// However, we first want to make sure it is explored
-	//value += memory.timeSpentInHouse * static_cast<float>(SurvivorUtils::IsSurvivorWithinHouse(memory.pSurvivor, memory.pSelectedHouse->ptr->GetBounds())) * 3.0f; 
-	//value += memory.timeSpentInHouse * static_cast<float>(memory.pSelectedHouse->explored); 
 
 	if (memory.pSelectedHouse->explored) {
 		//value += memory.timeSpentInHouse;
@@ -191,9 +158,6 @@ float ExploreHouseAction::Evaluate(const SurvivorMemory& memory)
 	float value{};
 
 	if (SurvivorUtils::IsWithinHouse(memory.pSurvivor->GetActorLocation(), memory.pSelectedHouse->ptr->GetBounds())) {
-		//const int numFreeSlots = SurvivorUtils::GetNumberOfFreeSlots(pInv);
-		//value += static_cast<float>(numFreeSlots) * 5.0f;
-
 		return 3.0f; // TEMP : Return flat value for testing
 	}
 
@@ -255,17 +219,6 @@ void ExploreHouseAction::Execute(SurvivorMemory& memory)
 	steering.AngularVelocity = 360.0f * deltaTime; // 180 degree rotation per second
 
 	ISteeringBehavior::ApplySteering(memory.pSurvivor, steering, false); // TODO : Disable auto orient, and rotate constantly so it can see all items
-
-	//memory.timeSpentInHouse += deltaTime;
-	//if (memory.timeSpentInHouse >= SurvivorMemory::s_MAX_TIME_SPENT_IN_HOUSE) {
-	//	memory.pSelectedHouse->explored = true;
-	//	memory.timeSpentInHouse += 1.0f; // Ensure it is above enough
-	//}
-
-	// TODO : Store Info on House
-	// If inventory is full, instead of picking stuff up, store it in memory
-	// To do this I still need to add a section to memory for this
-	// And I need to be able to check what items are in fron of the survivor
 }
 
 void ExploreHouseAction::LateExecute(SurvivorMemory& memory)

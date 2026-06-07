@@ -72,11 +72,6 @@ struct InventoryState
 
 struct SurvivorMemory
 {
-	// Add Memory of:
-	// - Visible Zombies, Houses and Items
-	// - Last seen Houses and Items
-	// - Purge Zones
-
 	// Pointers to Survivor's Components
 	ASurvivorPawn* pSurvivor = nullptr;
 	UInventoryComponent* pInventory = nullptr;
@@ -95,7 +90,6 @@ struct SurvivorMemory
 
 	TArray<PurgeMemory> purgeZones{};
 
-	//TArray<ItemMemory> items{};
 	TArray<ItemMemory> items_weapons{};
 	TArray<ItemMemory> items_medkits{};
 	TArray<ItemMemory> items_food{};

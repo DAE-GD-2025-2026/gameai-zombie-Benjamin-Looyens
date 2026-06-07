@@ -55,27 +55,6 @@ void USurvivorDecisionMaker::Init()
 	m_PassiveActions.Add(MakeUnique<RunAction>());
 	m_PassiveActions.Add(MakeUnique<CollectItemAction>());
 	m_PassiveActions.Add(MakeUnique<DestroyGarbageAction>());
-
-	// Goals & Actions to Add:
-	// - [GOAL] Search For Items
-	//		- [ACTION] Look for house
-	//		- [ACTION] Enter house
-	//		- [ACTION] Loot house
-	//		- [ACTION] Leave house
-	// - [GOAL] Defend self from zombie
-	//		- [ACTION] Search inventory for weapon
-	//			- [ACTION] Flee from zombie
-	//			- [GOAL] Search for Items ^
-	//		- [ACTION] Face zombie
-	//		- [ACTION] Use weapon
-	// - [GOAL] Heal from damage
-	//		- [ACTION] Search inventory for medkit
-	//			- [GOAL] Search for Items ^ 
-	//		- [ACTION] Use Medkit
-	// - [GOAL] Recover Stamina
-	//		- [ACTION] Search inventory for food
-	//			- [GOAL] Search for Items ^ 
-	//		- [ACTION] Use food
 }
 
 // Called when the game starts
@@ -90,11 +69,6 @@ void USurvivorDecisionMaker::TickComponent(float DeltaTime, ELevelTick TickType,
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	if (m_Actions.Num() <= 0) return; // No actions to loop through
-
-	// Potentially, I could split up the actions into different types:
-	// - "Thinking Actions", where it calculates options (such as best item, best zombie to attack, etc)
-	// - "Movement Actions", where it calculates and applies the steering/movement necessary
-	// - "Item Actions", where it uses the items that were decided (to attack or heal, etc)
 
 	// Logic after movement for previous action
 	if (m_PrevAction != -1) m_Actions[m_PrevAction]->LateExecute(m_Memory); 
@@ -123,7 +97,6 @@ void USurvivorDecisionMaker::TickComponent(float DeltaTime, ELevelTick TickType,
 
 		return false;
 	});
-	// TODO : Clear out items that havent been seen in a while?
 
 	// Refresh House Explored Status
 	m_Memory.invState = SurvivorUtils::GetInventoryState(m_Memory.pInventory);
@@ -211,10 +184,6 @@ void USurvivorDecisionMaker::TickComponent(float DeltaTime, ELevelTick TickType,
 
 	m_Actions[bestAction.first]->Execute(m_Memory);
 	m_PrevAction = bestAction.first;
-
-	// Maybe store steering behaviors elsewhere (in memory?)
-	// As they could potentially be better off being reused sometimes?
-	// Depends on the behavior specifically though, as some probably prefer to keep their internal storage
 }
 
 void USurvivorDecisionMaker::AddHouseMemory(AHouse* pHouse)
@@ -224,7 +193,6 @@ void USurvivorDecisionMaker::AddHouseMemory(AHouse* pHouse)
 		if (house.ptr == pHouse) return; // House already known
 	}
 
-	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("New House added to memory index [%i]"), houses.Num()));
 	houses.Add({ pHouse, GetWorld()->GetTimeSeconds() });
 }
 
@@ -235,7 +203,6 @@ void USurvivorDecisionMaker::AddPurgeMemory(APurgeZone* pPurgeZone)
 		if (zone.ptr == pPurgeZone) return; // Purge zone already known
 	}
 
-	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("New Purge Zone added to memory index [%i]"), zones.Num()));
 	zones.Add({ pPurgeZone, pPurgeZone->CreationTime });
 }
 
@@ -252,7 +219,6 @@ void USurvivorDecisionMaker::AddZombieMemory(ABaseZombie* pZombie)
 		}
 	}
 
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("New zombie added to memory index [%i]"), zombies.Num()));
 	zombies.Add({ pZombie, GetWorld()->GetTimeSeconds(), pZombie->GetActorLocation(), pZombie->GetVelocity() });
 }
 

@@ -146,13 +146,6 @@ void DestroyGarbageAction::LateExecute(SurvivorMemory& memory)
 // HEAL
 float HealAction::Evaluate(const SurvivorMemory& memory)
 {
-	// Check remaining HP
-	// Compare to Medkits in inventory (if have any)
-	// if medkit value >= missing hp store index to that medkit
-	// Use medkit through index
-	// Destroy medkit through index
-	// Set inventory slot as nullptr?
-
 	const auto& pInv = memory.pInventory;
 	const auto& pHP = memory.pHealth;
 	const auto& pItems = pInv->GetInventory();
@@ -247,7 +240,7 @@ float EatAction::Evaluate(const SurvivorMemory& memory)
 		}
 	}
 
-	if (bestFood.second == -1) return 0.0f; // No medkits found
+	if (bestFood.second == -1) return 0.0f; // No food found
 
 	const int foodVal = static_cast<int>(curStamina) + bestFood.second; // the higher the filled stamina is, the better
 	value += static_cast<float>(foodVal);
